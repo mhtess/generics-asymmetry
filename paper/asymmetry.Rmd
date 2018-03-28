@@ -1,0 +1,159 @@
+---
+title             : "The asymmetry between generic truth conditions and implied prevalence"
+shorttitle        : "Generic asymmetry"
+
+author: 
+  - name          : "Michael Henry Tessler"
+    affiliation   : "1"
+    corresponding : yes    # Define only one corresponding author
+    address       : "450 Serra Mall, Bldg. 420, Rm. 316, Stanford, CA 94305"
+    email         : "mhtessler@stanford.edu"
+  - name          : "Noah D. Goodman"
+    affiliation   : "1"
+
+affiliation:
+  - id            : "1"
+    institution   : "Department of Psychology, Stanford University"
+    
+header-includes:
+  - \usepackage{tabularx}
+  - \usepackage{multicol}
+  - \usepackage{wrapfig}
+  - \usepackage{caption}
+  - \usepackage{booktabs}
+  - \usepackage{amsmath}
+  - \usepackage{graphicx}
+  - \usepackage{subcaption}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  
+author_note: >
+  This manuscript is currently in prep. Comments or suggestions should be directed to MH Tessler.
+
+abstract: |
+  Enter abstract here. Each new line herein must be indented, like this line.
+  
+keywords          : "keywords"
+wordcount         : "X"
+
+bibliography      : ["generics.bib"]
+
+figsintext        : yes
+figurelist        : no
+tablelist         : no
+footnotelist      : no
+lineno            : no
+mask              : no
+
+class             : "man"
+output            : papaja::apa6_pdf
+---
+\newcommand{\denote}[1]{\mbox{ $[\![ #1 ]\!]$}}
+\newcommand*\diff{\mathop{}\!\mathrm{d}}
+\definecolor{Red}{RGB}{255,0,0}
+\definecolor{Green}{RGB}{10,200,100}
+\definecolor{Blue}{RGB}{10,100,200}
+
+\newcommand{\mht}[1]{{\textcolor{Blue}{[mht: #1]}}}
+\newcommand{\ndg}[1]{{\textcolor{Green}{[ndg: #1]}}}
+\newcommand{\red}[1]{{\textcolor{Red}{#1}}}
+
+
+```{r load_packages, include = FALSE}
+library("papaja")
+```
+
+```{r analysis_preferences}
+# Seed for random number generation
+set.seed(42)
+```
+
+# Introduction
+
+
+Generic statements (e.g., "Birds fly") convey generalizations about categories [@Carlson1977; @Carlson1995; @Leslie2008].
+This kind of language has caught the attention of psychologists, linguists, and philosophers beacuse it is widely prevalent in everyday conversation and child-directed speech [@Gelman1998; @Gelman2008; @GelmanEtAl2004], while at the same time having formal properties that are difficult to characterize [@Carson1995]. 
+
+Generic statement can be intuitively true under a wide range of statistical conditions. 
+"Birds fly" is true of most birds, but "Ducks lay eggs" is only true of female ducks, which make up about 50\% of the category.
+"Mosquitos carry malaria" is intuitively true despite less than 1\% of category actually having the property.
+
+Despite these variable *truth conditions*, generic statements often carry the implications of a universal or near-universal quantifier. 
+When people learn "Bears like to eat ants", they tend to think that *almost all* bears like to eat ants [@Gelman2002].
+
+There is a surprising d\'{e}colage between the truth conditions and interpretations of generic language: Interpretations are often strong while truth conditions are flexible. 
+@Cimpian2010 found that upon reading a generic (e.g., "Glippets have yellow fur."), participants infer (in an \emph{implied prevalence} task) that the property is widespread (e.g. almost all glippets have yellow fur).
+By contrast, participants endorse generics (in a \emph{truth conditions} task) for a wide range of prevalence levels (e.g. even when "30\% of glippets have yellow fur."), thus showing an asymmetry between truth conditions and implied prevalence. 
+However, this mismatch is not found for the behavior of quantified statements involving *all* or *most*, and is significantly reduced for generics of accidental properties (e.g., "Glippets have wet fur.").
+
+Below we replicate the basic asymmetry findings of \citeA{Cimpian2010} and reveal even more variability in the mismatch between \emph{truth conditions} and \emph{implied prevalence} using the expanded stimulus set from Expt.~2a.
+In addition, we now test both our models (generic endorsement [speaker $S_2$] and generic interpretation [listener $L_1$]) in the same experimental paradigm. 
+
+
+# Computational model
+
+## Model specification
+
+## Model predictions
+
+# Experiment 1: Replication and extension of Cimpian et al. (2010)
+
+
+<!-- \subsubsection*{Method} -->
+
+<!-- We re-analyze the data from Expt.~2b as the \emph{implied prevalence} data. -->
+<!-- The following paradigm is to measure the corresponding \emph{truth conditions}. -->
+
+<!-- \paragraph*{Participants} -->
+
+<!-- We recruited 40 participants over MTurk.   -->
+<!-- %We chose a sample size at least twice as large as the original study by \citeA{Cimpian2010} (original n=20), and to match Expt.~2b.  -->
+<!-- All participants were native English speakers.  -->
+<!-- None of the participants completed Expt.~2b (interpretations of novel generics). -->
+<!-- The experiment took about 5 minutes and participants were compensated \$0.60. -->
+
+<!-- \paragraph*{Procedure and materials} -->
+
+<!-- The cover story and materials were the same as in Expt.~2b. -->
+<!-- On each trial, participants were given a statement about a property's prevalence within a novel kind (e.g. \emph{50\% of feps have yellow fur.}). Participants were then asked whether or not they agreed or disagreed with the corresponding generic sentence (e.g. \emph{Feps have yellow fur.}). Prevalence varied between 10, 30, 50, 70, and 90\%. -->
+
+<!-- The experiment consisted of 25 trials: 5 trials for each of 5 types of properties measured in Expt.~2a (part, color part, vague part, common accidental, rare accidental).  -->
+<!-- Each prevalence level appeared once for each property type (5 prevalence levels x 5 property types).  -->
+
+<!-- \subsubsection*{Analysis and results} -->
+
+<!-- For both behavioral data and model predictions (Eq.~\ref{eq:S2}) we computed the average prevalence that led to an assenting judgment (the \emph{average prevalence score}), for each property type and participant, following the procedure used by \citeA{Cimpian2010}. -->
+<!-- For example, if a participant agreed with the generic whenever the prevalence was 70\% or 90\% and disagreed at the other prevalence levels, that participant received an \emph{average prevalence score} of 80\%. -->
+
+<!-- For our pair of models, there are two parameters (the two speaker optimality parameters). -->
+<!-- We infer them using the same Bayesian data analytic approach as before.  -->
+<!-- The MAP and 95\% HPD intervals for $\lambda_1$ is 19.5 [10.5, 19.9] and $\lambda_2$ is 0.4 [0.34, 0.49]. -->
+<!-- We then subjected the generic endorsement model to the same procedure as the human data.  -->
+<!-- The speaker model $S_2$ returns a posterior probability of producing the generic, for each level of prevalence.  -->
+<!-- We sample a response (\emph{agree} / \emph{disagree}) from this posterior distribution for each prevalence level, simulating a single subject's data. -->
+<!-- As with the human data, we took the trials where the model agreed with the generic, and took the mean of the prevalence levels corresponding to those trials, giving us the average prevalence at which the model assented to the generic. -->
+<!-- We repeated this for each type of property 40 times to simulate a sample of 40 participants.  -->
+<!-- We repeated this procedure 1000 times to bootstrap 95\% confidence intervals. -->
+
+<!-- The generic endorsement model (speaker $S_2$) predicted that \emph{average truth conditions} should not vary appreciably across the different types of properties, consistent with the fact that generics are acceptable for broad range of prevalence levels for all property types. -->
+<!-- A similar absence of a gradient was observed in the human data ($\beta = 2.82; SE = 4.02; t(39) = 0.70; p = 0.49$; Figure \ref{fig:exp2b}, dotted lines).  -->
+<!-- Interpretations of generic utterances are stronger than their average truth conditions for the biological properties but not for the accidental properties (Figure \ref{fig:exp2b}) with both human data, replicating \citeA{Cimpian2010}, and the model; the extent of the difference is governed by prior property knowledge (mean prevalence when present $\gamma$, from Expt.~2a). -->
+<!-- The listener and speaker pair of models predicts human endorsements and interpretations of novel generic utterances well ($r^2(10) = 0.87$, MSE = 0.008). -->
+<!-- Thus, our model predicts that the asymmetry between truth conditions and implied prevalence should hold, but only for properties with the most extreme prior beliefs. -->
+
+
+
+
+## Discussion
+
+
+# References
+
+
+```{r create_r-references}
+r_refs(file = "generics.bib")
+```
+
+\setlength{\parindent}{-0.5in}
+\setlength{\leftskip}{0.5in}
