@@ -71,25 +71,32 @@ set.seed(42)
 
 # Introduction
 
-
 Generic statements (e.g., "Birds fly") convey generalizations about categories [@Carlson1977; @Carlson1995; @Leslie2008].
 This kind of language has caught the attention of psychologists, linguists, and philosophers beacuse it is widely prevalent in everyday conversation and child-directed speech [@Gelman1998; @Gelman2008; @GelmanEtAl2004], while at the same time having formal properties that are difficult to characterize [@Carson1995]. 
 
 Generic statement can be intuitively true under a wide range of statistical conditions. 
-"Birds fly" is true of most birds, but "Ducks lay eggs" is only true of female ducks, which make up about 50\% of the category.
+"Birds fly" is true of most birds, but "Ducks lay eggs" is only true of adult, fertile, female ducks, which make up less than 50\% of the category.
 "Mosquitos carry malaria" is intuitively true despite less than 1\% of category actually having the property.
+Despite these variable *truth conditions*, it has been noted that generic statements often carry the *implied prevalence* of a universal or near-universal quantifier [@Abelson1966; @Gelman2002; @Cimpian2010]. 
+When both children and adults learn "Bears like to eat ants", they tend to think that *almost all* bears like to eat ants [@Gelman2002].
 
-Despite these variable *truth conditions*, generic statements often carry the implications of a universal or near-universal quantifier. 
-When people learn "Bears like to eat ants", they tend to think that *almost all* bears like to eat ants [@Gelman2002].
+Thus, there appears to be a surprising d\'{e}colage between the truth conditions and interpretations of generic language: Interpretations are often strong while truth conditions are flexible. 
+@Cimpian2010 found that upon reading a generic (e.g., "Glippets have yellow fur."), participants infer that the *implied prevalence* is high (e.g., almost all glippets have yellow fur).
+By contrast, participants endorse generics for a wide range of prevalence levels (e.g., even when 30\% of glippets have yellow fur). 
+By quantitatively comparing the two measurements, @Cimpian2010 found an asymmetry between between truth conditions and implied prevalence of generic statements but not for quantified statementse involving *all* or *most*.
 
-There is a surprising d\'{e}colage between the truth conditions and interpretations of generic language: Interpretations are often strong while truth conditions are flexible. 
-@Cimpian2010 found that upon reading a generic (e.g., "Glippets have yellow fur."), participants infer (in an \emph{implied prevalence} task) that the property is widespread (e.g. almost all glippets have yellow fur).
-By contrast, participants endorse generics (in a \emph{truth conditions} task) for a wide range of prevalence levels (e.g. even when "30\% of glippets have yellow fur."), thus showing an asymmetry between truth conditions and implied prevalence. 
-However, this mismatch is not found for the behavior of quantified statements involving *all* or *most*, and is significantly reduced for generics of accidental properties (e.g., "Glippets have wet fur.").
+Not all generics have strong interpretations, however. 
+"Mosquitos carry malaria" really seems to only have the quantificational force of an existential claim, meaning *some mosquitos carry malaria*.
+Weak interpretations from generics have been observed in tasks having participants draw inferences about individual members of a kind [@Khemlani2009; @Khemlani2012] as well as asking about implied prevalence [@Cimpian2010; Expt. 3].
+Coupled with the truth conditions measurements, @Cimpian2010 found that a significant reduction in the asymmetry for generics about accidental properties (e.g., "Glippets have wet fur.").
 
-Below we replicate the basic asymmetry findings of \citeA{Cimpian2010} and reveal even more variability in the mismatch between \emph{truth conditions} and \emph{implied prevalence} using the expanded stimulus set from Expt.~2a.
-In addition, we now test both our models (generic endorsement [speaker $S_2$] and generic interpretation [listener $L_1$]) in the same experimental paradigm. 
-
+When and how will the asymmetry between truth conditions and implied prevalence manifest?
+\red{[check cimpian's discussion section]}
+Here, we draw on the same computational framework to address this question. 
+We show through simulation various conditions under which the asymmetry appears and when it is predicted to disappear or even reverse.
+Then, we replicate the original asymmetry findings of @Cimpian2010 while expanding the stimulus set to reveal even more variability in the asymmetry.
+We then extend these findings to a larger-scale study using a more diverse stimulus set.
+In addition to revealing the quantitative intracacies of the asymmetry, our very same model is able to account for both truth conditions and implied prevalence simultaneously. 
 
 # Computational model
 
@@ -99,6 +106,7 @@ In addition, we now test both our models (generic endorsement [speaker $S_2$] an
 
 # Experiment 1: Replication and extension of Cimpian et al. (2010)
 
+# Experiment 2: Property-specific asymmetries
 
 <!-- \subsubsection*{Method} -->
 
