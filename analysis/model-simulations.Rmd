@@ -306,7 +306,7 @@ var interpreter = cache(function(utterance, fixed_threshold) {
     return state
  }})}, 10000)
 
-var alpha = 2
+var alpha = 3
 
 var endorser = function(featureProb, fixed_threshold){
   Infer({model: function(){
@@ -319,8 +319,8 @@ var endorser = function(featureProb, fixed_threshold){
 // console.log(data.referent_prevalence[0])
 var returnObj = {
  generic: probability(endorser(data.referent_prevalence[0]), "generic"),
- some: probability(endorser(data.referent_prevalence[0], _.min(thetaBins)), "generic"),
- most: probability(endorser(data.referent_prevalence[0], 0.5), "generic")
+ some: data.referent_prevalence[0] >  _.min(thetaBins) ?  1: 0, //probability(endorser(data.referent_prevalence[0], _.min(thetaBins)), "generic"),
+ most: data.referent_prevalence[0] >  0.5 ?  1: 0 //probability(endorser(data.referent_prevalence[0], 0.5), "generic")
 }
 returnObj
 '
@@ -348,7 +348,7 @@ for (p in priorNames){
 
     prevData = list(prior = priorShapes[[p]])
     
-    for (refprev in c(0.1, 0.3, 0.5, 0.7, 0.9)){
+    for (refprev in c(0.1, 0.2, 0.3,0.4, 0.5, 0.6,  0.7, 0.8, 0.9)){
           s1.rs <- webppl(paste(rsaHelpers, s1.model, sep = "\n"), 
                     data = list(prior = priorShapes[[p]],
                                 referent_prevalence = refprev), 
@@ -372,6 +372,7 @@ for (p in priorNames){
 
 ```{r}
 s1.simulations %>%
+  #filter(prior == "uniform") %>%
   ggplot(., aes ( x = referent_prevalence, y = endorsement,
                   color = model))+
   geom_point()+
@@ -403,7 +404,7 @@ l0.averages <- sims.combined %>%
   summarize(expval = mean(state))
 
 
-bind_rows(
+m.gen.asym <- bind_rows(
   s1.atc %>%
     ungroup() %>% rename(src = model,
                     PriorShape = prior,
@@ -413,15 +414,23 @@ bind_rows(
                         labels = c("fixed_0.1", "fixed_0.5", "posteriors")),
            model = "S1"),
   l0.averages %>% mutate(model = "L0")
-)  %>%
-  mutate(src = factor(src)) %>%
-  ggplot(., aes(x = src, y = expval, 
+)
+
+
+
+m.gen.asym %>%
+  mutate(src = factor(src),
+         PriorShape = factor(PriorShape, levels = c("accidental_rare", "uniform", "biological_rare")),
+         model = factor(model, levels = c("S1", "L0"), labels = c("Truth conditions", "Implied prevalence"))) %>%
+  ggplot(., aes(x = PriorShape, y = expval, 
                 fill = model))+
   geom_col(position= position_dodge(), color = 'black')+
   #geom_errorbar(position = position_dodge())+
-  facet_wrap(~PriorShape)+
+  facet_wrap(~src)+
   ylim(0, 1)+
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
+
+#save(m.gen.asym, s1.simulations, file = "../paper/cached_results/modelSims-asymmetry.RData")
 ```
 
 

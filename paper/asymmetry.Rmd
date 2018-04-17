@@ -62,6 +62,12 @@ output            : papaja::apa6_pdf
 
 ```{r load_packages, include = FALSE}
 library("papaja")
+library(tidyverse)
+library(cowplot)
+library(ggthemes)
+library(RColorBrewer)
+library(ggpirate)
+theme_set(theme_few())
 ```
 
 ```{r analysis_preferences}
@@ -120,8 +126,129 @@ If a participant fails to endorse the generic for all prevalence levels, @Cimpia
 
 \red{Figure 1} shows the average truth conditions for a variety of semantic hypotheses.
 
+```{r asymmetrySimulations, fig.width = 10, fig.asp = 0.6, fig.cap="Model simulations"}
+load(file = "cached_results/modelSims-priors_fixedT_uncertainT.RData")
+get.colors <- function(pal) brewer.pal(brewer.pal.info[pal, "maxcolors"], pal)
+spectrum.color.palette <- get.colors("Blues")
+load("cached_results/modelSims-asymmetry.RData")
+
+fig.sims.priors <- ggplot(sims.combined %>%
+         filter(
+           PriorShape %in% c("uniform", "biological_rare", "accidental_rare"),
+           src %in% c("priors")
+           ) %>%
+         mutate(PriorShape = factor(PriorShape, levels = c("uniform", "biological_rare", "accidental_rare"),
+                                    labels = c("uniform", "biological", "accidental")),
+                src = factor(src, levels = c( "priors"),
+                             labels = c(
+                               '\n prevalence prior'
+                                        ))), 
+       aes(x = state))+
+    geom_density(aes(y = ..scaled..), fill= 'black', size = 0.6, alpha = 0.7, adjust = 1.1)+
+    theme_few() +
+    scale_x_continuous(breaks = c(0, 1), limits= c(0, 1))+
+    scale_y_continuous(breaks = c(0, 1), limits= c(0, 1))+
+    ylab("Probability density (scaled)") +
+    xlab("Prior Prevalence")+
+    #scale_color_solarized()+
+    #scale_fill_solarized()+
+    facet_grid(PriorShape~src, scales = 'free')+
+    theme(strip.text.y = element_text(angle = 0),
+          legend.position = "none"
+          )
+
+
+fig.sims.distributions <- ggplot(sims.combined %>%
+         filter(
+           PriorShape %in% c("uniform", "biological_rare", "accidental_rare"),
+           src == "posteriors"
+           #src %in% c("fixed_0.1", "fixed_0.33", "fixed_0.5", "posteriors")
+           ) %>%
+         mutate(PriorShape = factor(PriorShape, levels = c("uniform", "biological_rare", "accidental_rare"),
+                                    labels = c("Xs Y\n[uniform]", "Xs fly\n[biological]", "Xs carry malaria \n [accidental]")),
+                src = factor(src, levels = c("posteriors"),
+                             labels = c('generic\n(uncertain threshold)'))),
+                # src = factor(src, levels = c( "fixed_0.1", "fixed_0.33",
+                #                               "fixed_0.5", "posteriors"),
+                #              labels = c(
+                #            #    'prevalence prior',
+                #                '"some"\n(threshold = 0.01)',
+                #                '"more than a third"\n(threshold = 0.33)',
+                #               '"most"\n(threshold = 0.5)',
+                #                'generic\n(uncertain threshold)'
+                #                         ))), 
+       aes(x = state, fill = src, color = src))+
+    geom_density(aes(y = ..scaled..), 
+                 color ='black', fill = 'grey50', size = 0.6, alpha = 0.7, adjust = 1.1)+
+    theme_few() +
+    scale_x_continuous(breaks = c(0, 1), limits= c(0, 1))+
+    scale_y_continuous(breaks = c(0, 1), limits= c(0, 1))+
+    ylab("Scaled posterior density") +
+    xlab("Implied Prevalence")+
+    # scale_fill_brewer(palette=2, type = "seq", direction = -1)+
+    # scale_color_brewer(palette=2, type = "seq", direction = -1)+
+    #scale_color_manual( values =  c(spectrum.color.palette[c(8,5,2)], "#238b45"))+
+    #scale_fill_manual( values = c(spectrum.color.palette[c(8,5,2)], "#238b45") )+
+    facet_grid(PriorShape~src, scales = 'free')+
+    theme(strip.text.y = element_blank(),# element_text(angle = 0, size = 12),
+          legend.position = "none",
+          axis.title.y = element_blank())
+
+fig.sims.truthJudgments <- s1.simulations %>%
+  filter(model == "generic") %>%
+  mutate(prior = factor(prior, levels = c("uniform", "biological_rare", "accidental_rare"),
+                                    labels = c("uniform", "biological", "accidental"))) %>%
+  ggplot(., aes ( x = referent_prevalence, y = endorsement,
+                  linetype = prior))+
+  geom_point()+
+  geom_line()+
+  theme(legend.position = c(0.8, 0.4) ,
+        legend.title = element_blank())+
+    scale_x_continuous(breaks = c(0, 0.5, 1), limits= c(0, 1))+
+    scale_y_continuous(breaks = c(0, 0.5, 1), limits= c(0, 1))+
+  ylab("Endorsement probability")+
+  xlab("Referent prevalence")
+
+
+fig.sims.asymmetry <- m.gen.asym %>%
+  filter(src == "posteriors") %>%
+  mutate(src = factor(src),
+         PriorShape = factor(PriorShape, levels = c("biological_rare","accidental_rare",   "uniform"),
+                                    labels = c( "biological",  "accidental","uniform")),
+         model = factor(model, levels = c("S1", "L0"), labels = c("Truth conditions", "Implied prevalence"))) %>%
+  ggplot(., aes(x = PriorShape, y = expval, 
+                fill = model))+
+  scale_fill_solarized() + 
+      scale_y_continuous(breaks = c(0, 0.5, 1), limits= c(0, 1))+
+  ylab("Average prevalence")+
+  geom_col(position= position_dodge(), color = 'black')+
+  #geom_errorbar(position = position_dodge())+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+        legend.position = c(0.75, 0.85),
+        legend.title = element_blank(),
+        axis.title.x = element_blank())
+
+
+cowplot::plot_grid(
+  fig.sims.priors + theme(plot.margin = unit(c(6, 3, 6, 0), "pt")), 
+  fig.sims.distributions + theme(plot.margin = unit(c(6, 6, 6, 0), "pt")),
+  cowplot::plot_grid(
+      fig.sims.truthJudgments + theme(plot.margin = unit(c(18, 3, 6, 0), "pt")), 
+      fig.sims.asymmetry + theme(plot.margin = unit(c(6, 0, 6, 0), "pt")),
+      ncol = 1,
+      labels = c("C","D"),
+      rel_heights  = c(1, 1.25)
+      ),
+  #fig.sims.bars+ theme(plot.margin = unit(c(6, 0, 0, 0), "pt")),
+  nrow = 1,
+  labels = c("A", "B", ""),
+  rel_widths = c(0.8, 0.6, 1)
+)
+```
 <!-- - Model figure: -->
-<!--   - Prior, L("Some"), L("Most"), L("Generic"), S: x=%, y= endorse, color = model, ATC & IP: bar plot (x = model) -->
+<!--   - Prior1, L("Generic1"), S: x=%, y= endorse, group = prior,  ATC & IP: bar plot (x = model) -->
+<!--   - Prior2, L("Generic2"), S: x=%, y= endorse,  ATC & IP: bar plot (x = model) -->
+<!--   - Prior3, L("Generic3"), S: x=%, y= endorse,  ATC & IP: bar plot (x = model) -->
 
 <!-- 
 Computing ATC for model should just be the mean of the production probabilities...
