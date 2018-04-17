@@ -71,6 +71,8 @@ set.seed(42)
 
 # Introduction
 
+\red{look at things that cite Cimpian et al. (2010) and see if people are discussing the asymmetry in the philosophical literature}
+
 Generic statements (e.g., "Birds fly") convey generalizations about categories [@Carlson1977; @Carlson1995; @Leslie2008].
 This kind of language has caught the attention of psychologists, linguists, and philosophers beacuse it is widely prevalent in everyday conversation and child-directed speech [@Gelman1998; @Gelman2008; @GelmanEtAl2004], while at the same time having formal properties that are difficult to characterize [@Carson1995]. 
 
@@ -98,11 +100,45 @@ Then, we replicate the original asymmetry findings of @Cimpian2010 while expandi
 We then extend these findings to a larger-scale study using a more diverse stimulus set.
 In addition to revealing the quantitative intracacies of the asymmetry, our very same model is able to account for both truth conditions and implied prevalence simultaneously. 
 
-# Computational model
+# The asymmetry between truth conditions and interpretations
 
-## Model specification
+The empirical asymmetry between truth conditions and interpretations was reported by @Cimpian2010.
+Truth conditions data result from an endorsement task, a two-alternative forced choice (2AFC) paradigm (as explored in Chapter 3).
+Interpretation data are prevalence ratings, typically on a 101-pt scale (e.g., the percentage of the category with the property).
+Thus, these two constructs are not in the same measurement space; one must be transformed into the other.
 
-## Model predictions
+To accomplish this, @Cimpian2010 turned the 2AFC endorsement data and computed the average prevalence level at which participants endorse the generic (*average truth conditions*).
+*Average truth conditions* is analagous to an average threshold. 
+To compute average truth conditions, you subset the endorsement data to look at only the trials where a participant endorsed the generic. 
+On a participant-wise basis, you take the mean of the referent prevalence levels (empirically supplied to participants) at which the participant endorsed the generic.
+For example, if a participant endorsed the generic at 50%, 70%, and 90% prevalence levels, their *average truth conditions* would be 70%. 
+Note that as participants become more lenient with the generic (endorsing it at lower prevalence levels), their corresponding average truth conditions will lower.
+The theoretical minimum average truth conditions is 50%, for a participant who endorsed the generic at all prevalence levels.^[
+  Average truth conditions could, in principle, be less than 50% if a participant only endorses the statement at low prevalence levels and then rejects the statement at high prevalence levels. We do not expect this behavior for the generic. 
+]
+If a participant fails to endorse the generic for all prevalence levels, @Cimpian2010 assigned them an average truth conditions of 100%, because presumably the participant would only endorsed the generic if it was true of 100% of members.
+
+\red{Figure 1} shows the average truth conditions for a variety of semantic hypotheses.
+
+<!-- - Model figure: -->
+<!--   - Prior, L("Some"), L("Most"), L("Generic"), S: x=%, y= endorse, color = model, ATC & IP: bar plot (x = model) -->
+
+<!-- 
+Computing ATC for model should just be the mean of the production probabilities...
+This probably is the same as the Cimpian sampling method, though won't have a way of constructing the variance..
+thus the sampling method may be preferred for constructing the variance
+-->
+
+
+
+
+
+To quantitatively compare these two measurements, @Cimpian2010
+
+The computational model of generic interpretation predicts that the implied prevalence of a generic statement is an interaction between background knowledge (formalized as a prevalence prior) and an underspecified threshold semantics. 
+I have shown in Chapter 2 how this model predicts context-sensitive interpretations of generic sentences. 
+The implied prevalence of a generic may be very strong (e.g., "Wugs have four legs") or very weak (e.g., "Lorches live in zoos").
+The implied prevalence of a generic 
 
 # Experiment 1: Replication and extension of Cimpian et al. (2010)
 
@@ -153,7 +189,7 @@ In addition to revealing the quantitative intracacies of the asymmetry, our very
 
 
 
-## Discussion
+# Discussion
 
 
 # References
