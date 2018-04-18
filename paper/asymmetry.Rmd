@@ -79,6 +79,12 @@ set.seed(42)
 
 \red{look at things that cite Cimpian et al. (2010) and see if people are discussing the asymmetry in the philosophical literature}
 
+<!-- 
+- Note about large-scale truth judgment task: 
+  - Cimpian fudges the analysis a little bit: He does it on a subject-wise basis, but using different properties (participants dont rate purple feathers for 10%, 30%, ...)... if we want to do item-wise, we either need to give subjects all the prevalence levels, or do some fancy hierarchical bayesian modeling (the latter may be preferred)
+-->
+
+
 Generic statements (e.g., "Birds fly") convey generalizations about categories [@Carlson1977; @Carlson1995; @Leslie2008].
 This kind of language has caught the attention of psychologists, linguists, and philosophers beacuse it is widely prevalent in everyday conversation and child-directed speech [@Gelman1998; @Gelman2008; @GelmanEtAl2004], while at the same time having formal properties that are difficult to characterize [@Carson1995]. 
 
@@ -99,7 +105,7 @@ Weak interpretations from generics have been observed in tasks having participan
 Coupled with the truth conditions measurements, @Cimpian2010 found that a significant reduction in the asymmetry for generics about accidental properties (e.g., "Glippets have wet fur.").
 
 When and how will the asymmetry between truth conditions and implied prevalence manifest?
-\red{[check cimpian's discussion section]}
+<!-- \red{[check cimpian's discussion section]} PERHAPS ADDRESS LATER WHAT CIMPIAN SAYS, because it's not directly the point (his ideas are tooo vague) -->
 Here, we draw on the same computational framework to address this question. 
 We show through simulation various conditions under which the asymmetry appears and when it is predicted to disappear or even reverse.
 Then, we replicate the original asymmetry findings of @Cimpian2010 while expanding the stimulus set to reveal even more variability in the asymmetry.
@@ -111,18 +117,37 @@ In addition to revealing the quantitative intracacies of the asymmetry, our very
 The empirical asymmetry between truth conditions and interpretations was reported by @Cimpian2010.
 Truth conditions data result from an endorsement task, a two-alternative forced choice (2AFC) paradigm (as explored in Chapter 3).
 Interpretation data are prevalence ratings, typically on a 101-pt scale (e.g., the percentage of the category with the property).
-Thus, these two constructs are not in the same measurement space; one must be transformed into the other.
+Thus, these two constructs are not in the same measurement space; one must be transformed into the other in order to compare them.
 
-To accomplish this, @Cimpian2010 turned the 2AFC endorsement data and computed the average prevalence level at which participants endorse the generic (*average truth conditions*).
-*Average truth conditions* is analagous to an average threshold. 
-To compute average truth conditions, you subset the endorsement data to look at only the trials where a participant endorsed the generic. 
-On a participant-wise basis, you take the mean of the referent prevalence levels (empirically supplied to participants) at which the participant endorsed the generic.
+To accomplish this, @Cimpian2010 took the 2AFC endorsement data and computed the average prevalence level at which participants endorse the generic (*average truth conditions*).
+<!-- *Average truth conditions* is analagous to an average threshold.  -->
+To compute a single participant's average truth conditions, the endorsement data is filtered to look at only the trials where a participant endorsed the generic. 
+Using only the endorsed trials, the mean of the referent prevalence levels (empirically supplied to participants) is computed (for each participant separately).
 For example, if a participant endorsed the generic at 50%, 70%, and 90% prevalence levels, their *average truth conditions* would be 70%. 
-Note that as participants become more lenient with the generic (endorsing it at lower prevalence levels), their corresponding average truth conditions will lower.
+Notice that as a participant becomes more lenient with the generic (endorsing it at lower prevalence levels), their corresponding average truth conditions will lower.
 The theoretical minimum average truth conditions is 50%, for a participant who endorsed the generic at all prevalence levels.^[
-  Average truth conditions could, in principle, be less than 50% if a participant only endorses the statement at low prevalence levels and then rejects the statement at high prevalence levels. We do not expect this behavior for the generic. 
+  Techinically, average truth conditions could be less than 50% were a participant to endorse the statement at low prevalence levels and then reject the statement at high prevalence levels. We do not expect this behavior for generics about positive properties. 
 ]
-If a participant fails to endorse the generic for all prevalence levels, @Cimpian2010 assigned them an average truth conditions of 100%, because presumably the participant would only endorsed the generic if it was true of 100% of members.
+If a participant fails to endorse the generic for all prevalence levels, @Cimpian2010 assigned them an average truth conditions of 100%, because presumably the participant would only endorse the generic if it were true of 100% of members.
+
+<!-- 
+Technical aspects of the asymmetry:
+  - Theoretical exploration using "some", "most" as simply threshold-functions (no speaker) and Uniform priors for the interpretation model
+    - This will show the symmetry for both?
+    - What will it show for the generic? (what about an L1?)
+  - For some, most: interpretation is potentially more complicated (some has the not all [not most?] implicature, which Cimpian finds... "most" maybe as well?)
+  - The dynamic range for the asymmetry is more limited for ATC than IP, so must of the action happens because of IP
+  
+  - Cimpian did it subject-wise but not property-wise (assuming property classes and equivalence within a class...). How do you do it propery-wise?
+    - [ ] do you get similar results by bootstrapping?
+    - [ ] can you build a bayesian model of these data?
+    - one possibility is to have subjects rate all prevalence levels... but this may be strange for people
+    - another is to share statistical strength
+      - assume there is a threshold for each property
+      - each participant's threshold is a sample from this distribution...
+      - but properties are completely independent? still may be too sparse
+        - maybe you don't need the participant level: just have a threshold model that has the possibility of noise?
+-->
 
 \red{Figure 1} shows the average truth conditions for a variety of semantic hypotheses.
 
@@ -256,71 +281,112 @@ This probably is the same as the Cimpian sampling method, though won't have a wa
 thus the sampling method may be preferred for constructing the variance
 -->
 
-
-
-
-
-To quantitatively compare these two measurements, @Cimpian2010
-
 The computational model of generic interpretation predicts that the implied prevalence of a generic statement is an interaction between background knowledge (formalized as a prevalence prior) and an underspecified threshold semantics. 
 I have shown in Chapter 2 how this model predicts context-sensitive interpretations of generic sentences. 
+In Chapter 3, we saw how a speaker model can account for endorsement beahvior.
 The implied prevalence of a generic may be very strong (e.g., "Wugs have four legs") or very weak (e.g., "Lorches live in zoos").
 The implied prevalence of a generic 
 
-# Experiment 1: Replication and extension of Cimpian et al. (2010)
+# Experiment 1: Replication and extension of Cimpian et al. (2010) truth conditions task
 
+In Chapter 2, I replicated @Cimpian2010's implied prevalence paradigm using a slightly expanded stimulus set (Expt. 1B). 
+To replicate the asymmetry findings, we must also measure the truth conditions ratings, using an endorsement task. Here, we replicate the truth conditions task using the (slightly expanded) stimulus set of @Cimpian2010.
+Recall that the prevalence priors have already been measured in Chapter 2 (Expt. 1A).
+
+## Method
+
+### Participants
+
+We recruited 40 participants over MTurk.  
+We chose a sample size at least twice as large as the original study by @Cimpian2010 (original $n = 20$), and to match that of Ch. 2 Expt. 1B. 
+All participants were self-reported native English speakers and none completed the analagous implied prevalence task (Ch. 2 Expt. 1B).
+The experiment took about 5 minutes and participants were compensated \$0.60.
+
+### Procedure and materials
+
+The cover story and materials were the same as in Ch. 2, Expt. 1B and the procedure followed that of @Cimpian2010 Expt. 1.
+On each trial, participants were given a statement about a property's prevalence within a novel kind (*referent prevalence*; e.g. "50% of feps have yellow fur."). 
+Participants were then asked whether or not they agreed or disagreed with the corresponding generic sentence (e.g. "Feps have yellow fur."). 
+Referent prevalence varied between 10, 30, 50, 70, and 90%.
+
+The experiment consisted of 25 trials: 5 trials for each of 5 types of properties measured in Ch. 2, Expt. 1A (part, color part, vague part, common accidental, rare accidental). 
+Each prevalence level appeared once for each property type (5 prevalence levels x 5 property types). 
+
+### Analysis and results
+
+For both behavioral data and model predictions (Eq. \ref{eq:S1}) we computed the average prevalence that led to an assenting judgment (the *average truth conditions*), for each property type and participant, following the procedure used by @Cimpian2010 and described in the previous section.
+
+For our pair of models, there are two parameters (the two speaker optimality parameters).
+We infer them using the same Bayesian data analytic approach as before. 
+The MAP and 95\% HPD intervals for $\lambda_1$ is 19.5 [10.5, 19.9] and $\lambda_2$ is 0.4 [0.34, 0.49].
+We then subjected the generic endorsement model to the same procedure as the human data. % subjected our model to the same procedure. 
+
+The speaker model $S_2$ returns a posterior probability of producing the generic, for each level of prevalence. 
+We sample a response (*agree* vs. *disagree*) from this posterior distribution for each prevalence level, simulating a single subject's data.
+As with the human data, we took the trials where the model agreed with the generic, and took the mean of the prevalence levels corresponding to those trials, giving us the average prevalence at which the model assented to the generic.
+We repeated this for each type of property 40 times to simulate a sample of 40 participants. 
+We repeated this procedure 1000 times to bootstrap 95% confidence intervals.
+
+The generic endorsement model predicted that *average truth conditions* should not vary appreciably across the different types of properties, consistent with the fact that generics are acceptable for broad range of prevalence levels for all property types.
+A similar absence of a gradient was observed in the human data ($\beta = 2.82; SE = 4.02; t(39) = 0.70; p = 0.49$; \red{Figure X}). 
+Interpretations of generic utterances are stronger than their average truth conditions for the biological properties but not for the accidental properties (Figure \ref{fig:exp2b}) with both human data, replicating @Cimpian2010, and the model; the extent of the difference is governed by prior property knowledge (mean prevalence when present $\gamma$, from Expt.~2a).
+The listener and speaker pair of models predicts human endorsements and interpretations of novel generic utterances well ($r^2(10) = 0.87$, MSE = 0.008).
+Thus, our model predicts that the asymmetry between truth conditions and implied prevalence should hold, but only for properties with the most extreme prior beliefs.
+
+In this study [as in @Cimpian2010's], *average truth conditions* is computed on a participant-wise basis but at the level of property type, not property. 
+
+### Extended analysis: Average truth conditions 
+
+<!-- 
+  - [1.] do you get similar results by bootstrapping subjects and not going straight to ATC (property type level)?
+  - [2.] if so, can you do bootstrapping at the individual property level?
+  - [3.] can you build a bayesian model of these data? 
+-->
+    
 # Experiment 2: Property-specific asymmetries
 
-<!-- \subsubsection*{Method} -->
+In this experiment, we measure *average truth conditions* for the larger and more diverse stimulus set used in Ch. 2, Expt. 2.
 
-<!-- We re-analyze the data from Expt.~2b as the \emph{implied prevalence} data. -->
-<!-- The following paradigm is to measure the corresponding \emph{truth conditions}. -->
+## Method
 
-<!-- \paragraph*{Participants} -->
+### Participants
 
-<!-- We recruited 40 participants over MTurk.   -->
-<!-- %We chose a sample size at least twice as large as the original study by \citeA{Cimpian2010} (original n=20), and to match Expt.~2b.  -->
-<!-- All participants were native English speakers.  -->
-<!-- None of the participants completed Expt.~2b (interpretations of novel generics). -->
-<!-- The experiment took about 5 minutes and participants were compensated \$0.60. -->
+We recruited X participants from MTurk. 
+This number was arrived at with the intention of getting approximately X ratings for each unique item in the experiment.
+The experiment took on average X minutes and participants were compensated \$K.
 
-<!-- \paragraph*{Procedure and materials} -->
+### Materials
 
-<!-- The cover story and materials were the same as in Expt.~2b. -->
-<!-- On each trial, participants were given a statement about a property's prevalence within a novel kind (e.g. \emph{50\% of feps have yellow fur.}). Participants were then asked whether or not they agreed or disagreed with the corresponding generic sentence (e.g. \emph{Feps have yellow fur.}). Prevalence varied between 10, 30, 50, 70, and 90\%. -->
+We used the stimulus set of 75 properties used in Ch. 2, Expt. 2.
+Items were generated by considering six different classes of properties: physical characteristics (e.g., *have brown spots*), psychological characteristics (e.g., *experience emotions*), dietary habits (e.g., *eat human food*), habitat (e.g., *live in zoos*), disease (e.g., *get cancer*, *carry malaria*), reproductive behavior (e.g., *have a menstrual cycle*), and other miscellaneous behaviors (e.g., *pound their chests to display dominance*, *perform in the circus*); online sources about strange animal behaviors were consulted in order to find the more obscure properties. 
 
-<!-- The experiment consisted of 25 trials: 5 trials for each of 5 types of properties measured in Expt.~2a (part, color part, vague part, common accidental, rare accidental).  -->
-<!-- Each prevalence level appeared once for each property type (5 prevalence levels x 5 property types).  -->
+In addition, participants saw prevalence levels ranging from 10%, 30%, 50%, 70%, and 90%, as in @Cimpian2010 and Expt. 1 above.
+In order to avoid fatigue and/or habituation to the statistics of the task, unlike Expt. 1, the exact prevalence seen on an individual trial was sampled from a (discrete) uniform distribution centered at the prevalence level (10, 30, ..., 90) with a range of $\pm 5\%$.
 
-<!-- \subsubsection*{Analysis and results} -->
+### Procedure
 
-<!-- For both behavioral data and model predictions (Eq.~\ref{eq:S2}) we computed the average prevalence that led to an assenting judgment (the \emph{average prevalence score}), for each property type and participant, following the procedure used by \citeA{Cimpian2010}. -->
-<!-- For example, if a participant agreed with the generic whenever the prevalence was 70\% or 90\% and disagreed at the other prevalence levels, that participant received an \emph{average prevalence score} of 80\%. -->
+Participants were told that scientists had recently discovered lots of new animals that we did not know existed.
+On each trial, they would learn a fact about a new animal and be asked whether or not they agreed with a sentence.
 
-<!-- For our pair of models, there are two parameters (the two speaker optimality parameters). -->
-<!-- We infer them using the same Bayesian data analytic approach as before.  -->
-<!-- The MAP and 95\% HPD intervals for $\lambda_1$ is 19.5 [10.5, 19.9] and $\lambda_2$ is 0.4 [0.34, 0.49]. -->
-<!-- We then subjected the generic endorsement model to the same procedure as the human data.  -->
-<!-- The speaker model $S_2$ returns a posterior probability of producing the generic, for each level of prevalence.  -->
-<!-- We sample a response (\emph{agree} / \emph{disagree}) from this posterior distribution for each prevalence level, simulating a single subject's data. -->
-<!-- As with the human data, we took the trials where the model agreed with the generic, and took the mean of the prevalence levels corresponding to those trials, giving us the average prevalence at which the model assented to the generic. -->
-<!-- We repeated this for each type of property 40 times to simulate a sample of 40 participants.  -->
-<!-- We repeated this procedure 1000 times to bootstrap 95\% confidence intervals. -->
+On each trial, participants read: "Scientists discovered an animal called a *K*. Out of all of the *Ks* on the planet, *X%* of them *F*" (e.g., "Scientists discovered an animal called a jav. Out of all of the javs on the planet, 9% of them have an exquisite sense of smell").
+They were then asked if the corresponding bare plural sentence "*Ks F*"  was true or false (e.g., "Javs have an exquisite sense of smell").
+Participants responded using radio buttons labeled "True" and "False", the ordering of which was randomized between-subjects.
+As in Ch. 2, Expt. 2B, novel animal category names were mostly taken from @Cimpian2010 and similar studies on generic language. 
+Each participant completed \red{N} trials, \red{M} at each prevalence level (10, 30, 50, 70, 90).
+Each trial asked about a different property.
 
-<!-- The generic endorsement model (speaker $S_2$) predicted that \emph{average truth conditions} should not vary appreciably across the different types of properties, consistent with the fact that generics are acceptable for broad range of prevalence levels for all property types. -->
-<!-- A similar absence of a gradient was observed in the human data ($\beta = 2.82; SE = 4.02; t(39) = 0.70; p = 0.49$; Figure \ref{fig:exp2b}, dotted lines).  -->
-<!-- Interpretations of generic utterances are stronger than their average truth conditions for the biological properties but not for the accidental properties (Figure \ref{fig:exp2b}) with both human data, replicating \citeA{Cimpian2010}, and the model; the extent of the difference is governed by prior property knowledge (mean prevalence when present $\gamma$, from Expt.~2a). -->
-<!-- The listener and speaker pair of models predicts human endorsements and interpretations of novel generic utterances well ($r^2(10) = 0.87$, MSE = 0.008). -->
-<!-- Thus, our model predicts that the asymmetry between truth conditions and implied prevalence should hold, but only for properties with the most extreme prior beliefs. -->
+After the generic interpretation trials, participants a memory check trial wherein they were shown ten properties and asked to click on those they had seen in the experiment.
+Following the memory check trials and depending on their ratings in the task, participants completed up to five explanation trials. 
+On an explanation trial, participants saw a rating they had given for a property they had either rated as (1) true at prevalence levels 10% or 30% or (2) false at prevalence levels 70% or 90%, and asked if they could explain why they gave the response that they gave. 
+(These data were used in an exploratory analysis.)
+If participants gave no such ratings, they did not complete any explanation trials. 
 
-
-
+### Results
 
 # Discussion
 
 
 # References
-
 
 ```{r create_r-references}
 r_refs(file = "generics.bib")
