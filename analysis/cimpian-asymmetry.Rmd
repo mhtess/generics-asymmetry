@@ -1,0 +1,181 @@
+---
+title: "Analysis for asymmetry: Cimpian, Brandone, and Gelman (2010) replication and extension"
+output: html_notebook
+---
+
+```{r}
+library(rwebppl)
+library(tidyverse)
+library(tidyboot)
+library(knitr)
+library(ggpirate)
+library(viridis)
+```
+
+## Load data
+
+```{r}
+df.c.prior <- read_csv("../data/cbg2010/asymmetry-prior-4-trials.csv")
+
+df.c.asym <- read_csv("../data/cbg2010/novelGenerics-trials-medSplitAccidental.csv")  %>%
+  mutate(stim_type = ifelse(stim_type == "disease", "accidental", stim_type))
+```
+
+## Interpretation data
+
+```{r fig.height = 5}
+df.c.int.bs <- df.c.asym %>%
+  filter(trial_type == "implied_prevalence") %>%
+  mutate(response = 100*response) %>%
+  group_by(stim_type) %>%
+  tidyboot_mean(column = response)
+
+# save(df.c.int.bs,
+#      file = "../paper/cached_results/cimpian-interpretations-95ci.RData")
+
+df.c.int.bs %>%
+  ungroup() %>%
+  mutate(stim_property = factor(stim_property, 
+                           levels =  with(df.c.int.bs, stim_property[order(-mean)])),
+          "Property type" = factor(stim_type,
+                                         levels = c("part",
+                                                    "vague",
+                                                    "color",
+                                                    "accidental"),
+                                         labels = c("body part",
+                                                    "color adj + part",
+                                                    "gradable adj + part",
+                                                    "accidental"))) %>%
+  ggplot(., aes( x = stim_property, y = mean, ymin = ci_lower, ymax = ci_upper, 
+                 fill = `Property type`))+
+  geom_col(position = position_dodge(), color = 'black')+
+  geom_errorbar(position = position_dodge(), alpha = 0.3)+
+  #geom_pirate(bars = F, violins = F, width_points = 0.2)+
+  #coord_flip()+
+  #scale_color_viridis(discrete = T)+
+  scale_y_continuous(limits = c(0, 1), breaks = c(0, 0.5, 1))+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+        axis.title.x = element_blank())+
+  ylab("Mean implied prevalence")
+
+# df.c.int %>%
+#   mutate(stim_property = factor(stim_property, 
+#                            levels =  with(df.c.int.bs, stim_property[order(mean)]))) %>%
+#   ggplot(., aes( x = stim_property, y = response, color = stim_property))+
+#   geom_pirate(bars = F, violins = F, width_points = 0.2)+
+#   coord_flip()+
+#   scale_color_viridis(discrete = T)+
+#   ylim(0, 1)
+```
+
+```{r}
+df.c.int.bs %>%
+  ggplot(., aes(x = mean))+
+  geom_histogram( binwidth = 0.075)
+```
+
+## Endorsement data
+
+
+
+```{r}
+df.c.endorse_by_prev <- df.c.asym %>%
+    filter(trial_type == "truth_conditions") %>%
+    mutate(stim_prevalence = as.numeric(stim_prevalence)) %>%
+  group_by(stim_type, stim_prevalence) %>%
+  tidyboot_mean(column = response)
+  
+```
+
+
+```{r}
+dodge_width <- 7
+
+df.c.endorse_by_prev %>%
+  mutate("Property type" = factor(stim_type,
+                                         levels = c("part",
+                                                    "vague",
+                                                    "color",
+                                                    "accidental"),
+                                         labels = c("body part",
+                                                    "color adj + part",
+                                                    "gradable adj + part",
+                                                    "accidental"))) %>%
+  ggplot(., aes( x = stim_prevalence, y = mean, ymin = ci_lower,
+                 ymax = ci_upper, fill = `Property type`,
+                 color = `Property type`))+
+  geom_line(position = position_dodge(dodge_width), alpha = 0.4,
+            linetype = 3)+
+  geom_linerange(position = position_dodge(dodge_width), alpha = 0.6,
+                 size = 1)+
+  geom_point(position = position_dodge(dodge_width),
+             size = 2.5, shape = 21, color = 'black')+
+  scale_fill_solarized()+
+  scale_color_solarized()+
+  ylab("Proportion endorse")+
+  xlab("Referent prevalence")+
+  scale_x_continuous(limits = c(0, 100), breaks = c(10,  30, 50, 70,90))+
+  scale_y_continuous(limits = c(0, 1), breaks = c(0, 0.5, 1))+
+  theme(legend.position = c(0.8, 0.3))
+```
+
+
+
+```{r}
+average_truth_conditions <- function(responses,prevalences){
+  avePrev<-if (sum(responses)>0){
+    sum(responses*prevalences)/sum(responses)
+  } else {
+    100
+  }
+  return(avePrev)
+}
+
+df.atc <- df.c.asym %>%
+  filter(trial_type == "truth_conditions") %>%
+   mutate(stim_prevalence = as.numeric(stim_prevalence)) %>%
+    group_by(workerid, stim_type) %>%
+  summarise(response = average_truth_conditions(response,stim_prevalence)) %>%
+  ungroup() %>%
+  group_by(stim_type) %>%
+  tidyboot_mean(column = response)
+
+
+dodge_width <- 0.8
+
+bind_rows(
+  df.c.int.bs %>% mutate(src = 'implied prevalence'),
+  df.atc %>% mutate(src = 'truth conditions')
+) %>%
+  mutate("Property type" = factor(stim_type,
+                                         levels = c("part",
+                                                    "vague",
+                                                    "color",
+                                                    "accidental"),
+                                         labels = c("body part",
+                                                    "color adj + part",
+                                                    "gradable adj + part",
+                                                    "accidental")),
+         src = factor(src, levels = c("truth conditions",
+                                      "implied prevalence"))) %>%
+  ggplot(., aes( x = `Property type`, y = mean, ymin = ci_lower,
+                 ymax = ci_upper, fill = `Property type`, alpha = src))+
+  geom_col(position = position_dodge(dodge_width), width = dodge_width,
+           color = 'black')+
+  geom_errorbar(position = position_dodge(dodge_width),
+                 size = 1, width = 0.1)+
+  scale_fill_solarized()+
+  scale_alpha_manual(values = c(0.6, 1))+
+  scale_y_continuous(limits = c(0, 100))+
+  ylab("Average truth conditions")+
+  guides(fill = F)+
+  theme(axis.text.x = element_text(angle = 45, vjust =1 ,hjust = 1),
+        legend.title = element_blank(),
+        axis.title.x = element_blank())
+  #scale_x_continuous(limits = c(0, 100), breaks = c(10,  30, 50, 70,90))+
+  #scale_y_continuous(limits = c(0, 1), breaks = c(0, 0.5, 1))
+
+save(df.c.endorse_by_prev, df.c.int.bs, df.atc,
+     file = "../paper/cached_results/cbg_results.RData")
+```
+

@@ -73,6 +73,8 @@ theme_set(theme_few())
 ```{r analysis_preferences}
 # Seed for random number generation
 set.seed(42)
+knitr::opts_chunk$set(echo=FALSE, warning=FALSE, cache=T, message=FALSE, sanitize = T)
+
 ```
 
 # Introduction
@@ -86,7 +88,7 @@ set.seed(42)
 
 
 Generic statements (e.g., "Birds fly") convey generalizations about categories [@Carlson1977; @Carlson1995; @Leslie2008].
-This kind of language has caught the attention of psychologists, linguists, and philosophers beacuse it is widely prevalent in everyday conversation and child-directed speech [@Gelman1998; @Gelman2008; @GelmanEtAl2004], while at the same time having formal properties that are difficult to characterize [@Carson1995]. 
+This kind of language has caught the attention of psychologists, linguists, and philosophers beacuse it is widely prevalent in everyday conversation and child-directed speech [@Gelman1998; @Gelman2008; @GelmanEtAl2004], while at the same time having formal properties that are difficult to characterize [@Carlson1995]. 
 
 Generic statement can be intuitively true under a wide range of statistical conditions. 
 "Birds fly" is true of most birds, but "Ducks lay eggs" is only true of adult, fertile, female ducks, which make up less than 50\% of the category.
@@ -151,7 +153,8 @@ Technical aspects of the asymmetry:
 
 \red{Figure 1} shows the average truth conditions for a variety of semantic hypotheses.
 
-```{r asymmetrySimulations, fig.width = 10, fig.asp = 0.6, fig.cap="Model simulations"}
+```{r asymmetrySimulations, fig.width=8, fig.asp=0.5, cache=F, fig.cap="Model simulations"}
+
 load(file = "cached_results/modelSims-priors_fixedT_uncertainT.RData")
 get.colors <- function(pal) brewer.pal(brewer.pal.info[pal, "maxcolors"], pal)
 spectrum.color.palette <- get.colors("Blues")
@@ -249,7 +252,7 @@ fig.sims.asymmetry <- m.gen.asym %>%
   geom_col(position= position_dodge(), color = 'black')+
   #geom_errorbar(position = position_dodge())+
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
-        legend.position = c(0.75, 0.85),
+        legend.position = c(0.80, 0.85),
         legend.title = element_blank(),
         axis.title.x = element_blank())
 
@@ -290,8 +293,9 @@ The implied prevalence of a generic
 # Experiment 1: Replication and extension of Cimpian et al. (2010) truth conditions task
 
 In Chapter 2, I replicated @Cimpian2010's implied prevalence paradigm using a slightly expanded stimulus set (Expt. 1B). 
-To replicate the asymmetry findings, we must also measure the truth conditions ratings, using an endorsement task. Here, we replicate the truth conditions task using the (slightly expanded) stimulus set of @Cimpian2010.
-Recall that the prevalence priors have already been measured in Chapter 2 (Expt. 1A).
+To replicate the asymmetry findings, we must also measure endorsements using @Cimpian2010's *truth conditions* paradigm.
+Here, we replicate the truth conditions task using the slightly expanded stimulus set of @Cimpian2010.
+The relevant prevalence priors have already been measured in Chapter 2 (Expt. 1A).
 
 ## Method
 
@@ -312,7 +316,86 @@ Referent prevalence varied between 10, 30, 50, 70, and 90%.
 The experiment consisted of 25 trials: 5 trials for each of 5 types of properties measured in Ch. 2, Expt. 1A (part, color part, vague part, common accidental, rare accidental). 
 Each prevalence level appeared once for each property type (5 prevalence levels x 5 property types). 
 
-### Analysis and results
+### Results
+
+```{r figCbgResults, fig.width=10.5, fig.asp = 0.35, fig.cap="Words"}
+load(file = "cached_results/cbg_results.RData")
+
+dodge_width <- 7
+
+fig.cbg.tj <- df.c.endorse_by_prev %>%
+  mutate("Property type" = factor(stim_type,
+                                         levels = c("part",
+                                                    "vague",
+                                                    "color",
+                                                    "accidental"),
+                                         labels = c("body part",
+                                                    "color adj + part",
+                                                    "gradable adj + part",
+                                                    "accidental"))) %>%
+  ggplot(., aes( x = stim_prevalence, y = mean, ymin = ci_lower,
+                 ymax = ci_upper, fill = `Property type`,
+                 color = `Property type`))+
+  geom_line(position = position_dodge(dodge_width), alpha = 0.4,
+            linetype = 3)+
+  geom_linerange(position = position_dodge(dodge_width), alpha = 0.6,
+                 size = 1)+
+  geom_point(position = position_dodge(dodge_width),
+             size = 2.5, shape = 21, color = 'black')+
+  scale_fill_solarized()+
+  scale_color_solarized()+
+  ylab("Proportion endorse")+
+  xlab("\n Referent prevalence")+
+  scale_x_continuous(limits = c(0, 100), breaks = c(10,  30, 50, 70,90))+
+  scale_y_continuous(limits = c(0, 1), breaks = c(0, 0.5, 1))+
+  theme(legend.position = c(0.75, 0.27))+
+  coord_fixed(ratio = 65)
+
+dodge_width <- 0.8
+
+fig.cbg.asym <- bind_rows(
+  df.c.int.bs %>% mutate(src = 'implied prevalence'),
+  df.atc %>% mutate(src = 'truth conditions')
+) %>%
+  mutate("Property type" = factor(stim_type,
+                                         levels = c("part",
+                                                    "vague",
+                                                    "color",
+                                                    "accidental"),
+                                         labels = c("body part",
+                                                    "color adj + part",
+                                                    "gradable adj + part",
+                                                    "accidental")),
+         src = factor(src, levels = c("truth conditions",
+                                      "implied prevalence"))) %>%
+  ggplot(., aes( x = `Property type`, y = mean, ymin = ci_lower,
+                 ymax = ci_upper, fill = `Property type`, alpha = src))+
+  geom_col(position = position_dodge(dodge_width), width = dodge_width,
+           color = 'black')+
+  geom_errorbar(position = position_dodge(dodge_width),
+                 size = 1, width = 0.1)+
+  scale_fill_solarized()+
+  scale_alpha_manual(values = c(0.6, 1))+
+  scale_y_continuous(limits = c(0, 100))+
+  ylab("Average truth conditions")+
+  guides(fill = F)+
+  theme(axis.text.x = element_text(angle = 45, vjust =1 ,hjust = 1),
+        legend.title = element_blank(),
+        axis.title.x = element_blank()#,
+        #legend.position = c(0.75, 0.9)
+        )
+
+cowplot::plot_grid(
+  fig.cbg.tj + theme(plot.margin = unit(c(6, 3, 30, 0), "pt")), 
+  fig.cbg.asym + theme(plot.margin = unit(c(6, 6, 6, 0), "pt")),
+  #fig.sims.bars+ theme(plot.margin = unit(c(6, 0, 0, 0), "pt")),
+  nrow = 1,
+  labels = c("A", "B"),
+  rel_widths = c(1,1)
+)
+
+```
+
 
 For both behavioral data and model predictions (Eq. \ref{eq:S1}) we computed the average prevalence that led to an assenting judgment (the *average truth conditions*), for each property type and participant, following the procedure used by @Cimpian2010 and described in the previous section.
 
