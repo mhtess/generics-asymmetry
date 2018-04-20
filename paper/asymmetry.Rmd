@@ -116,6 +116,12 @@ In addition to revealing the quantitative intracacies of the asymmetry, our very
 
 # The asymmetry between truth conditions and interpretations
 
+An asymmetry between truth conditions and interpretations occurs when the prevalence levels at which a statement is endorsed differ from the prevalences implied by the same statement. 
+The asymmetry is present generic statements about biological properties, as reported by @Cimpian2010.
+Generic statements are accepted for a wide range of prevalence levels (e.g., even when the property is present in only 10% of cases) but when participants learn from generics, the statements are often interpreted quite strongly (e.g., all or almost all have the property). 
+
+## Technical description
+
 The empirical asymmetry between truth conditions and interpretations was reported by @Cimpian2010.
 Truth conditions data result from an endorsement task, a two-alternative forced choice (2AFC) paradigm (as explored in Chapter 3).
 Interpretation data are prevalence ratings, typically on a 101-pt scale (e.g., the percentage of the category with the property).
@@ -131,6 +137,41 @@ The theoretical minimum average truth conditions is 50%, for a participant who e
   Techinically, average truth conditions could be less than 50% were a participant to endorse the statement at low prevalence levels and then reject the statement at high prevalence levels. We do not expect this behavior for generics about positive properties. 
 ]
 If a participant fails to endorse the generic for all prevalence levels, @Cimpian2010 assigned them an average truth conditions of 100%, because presumably the participant would only endorse the generic if it were true of 100% of members.
+
+This asymmetry is anomalous (at least in theory) when compared again quantifiers.
+*All* is the easiest to think about: On a true/false task, participants should only endorse an *all* quantified statement when the prevalence is 100%; separately, when participants learn from a sentence containing *all*, they should believe the prevalence is 100%. 
+From a simplified analysis, the quantifier *most* is true when the prevalence is greater than 50% (i.e., *most* means roughly *more than half*); the average prevalence at which a person will assent to a statement involving *most* will be 75% (i.e., all prevalences between 50-100%).
+Given a uniform prior over the prevalence, a literal listener will interpret *most* as being consistent will all prevalences greater than 50%; again, averaging over these possilibities, the mean implied prevalence will be 75%.^[
+  The lack of the asymmetry for *most* was shown in @Cimpian2010 Expt. 1.
+]
+On a literal analysis, *some* behaves similarly: It rules out prevalence of 0%, and leaves open all other possibilities; on a literal analysis, the average truth conditions and the mean implied prevalence should be about 50%.
+
+## Criticisms of the asymmetry analysis
+
+Translating this theoretical analysis into predictions about observed behavior is less than straightforward.^[
+  It is not my goal to delve too deep into the intracacies of comparing truth judgments with prevalence ratings, this being part of more broadly a comparison between speaker and listener behavior. 
+  I will not present models of other quantifiers and show quantifiers-by-domain interactions, though this is clearly an area ripe for modeling. 
+  Instead, I will try to highlight some of the issues, as I see it, that will help us better understand the comparison of truth judgments and implied prevalence ratings for generic statements, specifically. 
+]
+I believe literal endorsement tasks (as the *truth conditions* task purports to be) are possible. 
+In @Yoon2016 and @Yoon2017, we attempted to empirically measure "literal semantics" by providing participants with both a state of the world and an utterance and asking the participant if they thought that the speaker thought the utterance was true (e.g., "John baked a cake. Sally thought the cake deserved a rating of 5 out of 5. Do you think Sally thought John's cake was good?").
+Here we found no effects of pragmatic production behavior (e.g., participants rated the adjective "good" as equally good for 4 out of 5 and for 5 out of 5, even the adjective "amazing" was also present on different trials in the experimental context).
+The setup of very similar to the truth conditions task of @Cimpian2010 wherein participants are supplied with both a state of the world (here, prevalence) and an utterance (a generic) and asked if they thought it was true or false.
+However, @Cimpian2010 Expt. 2 show results for the truth conditions task using the quantifier "some" and find less than full endorsement for "some" at 70% and 90% prevalence. 
+
+Attempting a literal interpretation task is even trickier. 
+Language understanding is in general a pragmatic process which should take into account both a listener's prior beliefs and their assumptions of the speaker.
+Therefore, in an implied prevalence task involving *some* (e.g., "Some lorches have purple feathers"), we would expect participants to report a prevalence consisntent with *some but not all* (perhaps even *some and not most*). Additionally, prior beliefs can rarely be assumed to be uniform. 
+In our empirical work thus far, we have seen how prevalence prior distributions vary dramatically across different kinds of properties and we already know (from Chapter 2) that these influence participants' implied prevalence ratings.
+
+
+<!-- The above analysis assumes uniform priors over prevalence and a literal interpretation model (on the implied prevalence side) as well as a model of a literal speaker (on the truth conditions side).  -->
+<!-- Were any of these assumptions to prove false, the theoretical symmetries would break.  -->
+<!-- @Cimpian's data is from language experiments, for which pragmatic understanding should be the default assumption.  -->
+<!-- It is possible the truth conditions task should also be thought of as pragmatic. -->
+<!-- @Degen's gumballs show that participants are reluctant to endorse a *some* statement when *all* is present. -->
+<!-- For example, the implied prevalence task can easily be construed as a pragmatic  -->
+
 
 <!-- 
 Technical aspects of the asymmetry:
