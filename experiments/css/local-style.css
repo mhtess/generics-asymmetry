@@ -33,3 +33,7 @@
 .bin_label{
 	text-align: center;
 }
+
+input[type="radio"]{
+  margin: 0 5px 0 25px;
+}

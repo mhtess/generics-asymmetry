@@ -1,4 +1,18 @@
-// replication of CBG exp 3 (accidental properties)
+// extensions of CBG exp 1 (truth judgments)
+
+
+function createRadioElement(name, label, value, checked) {
+    var radioHtml = '<label><input type="radio" name="' + name + '" value = "'+value+'"';
+    if ( checked ) {
+        radioHtml += ' checked="checked"';
+    }
+    radioHtml += '/>' + label + "</label>";
+
+    var radioFragment = document.createElement('div');
+    radioFragment.innerHTML = radioHtml;
+
+    return radioFragment.firstChild;
+}
 
 function make_slides(f) {
   var slides = {};
@@ -34,8 +48,8 @@ function make_slides(f) {
 
      this.catch_properties = [
        "have long legs",
-       "have gold spots",
-       "have infected scales",
+       "get infections",
+       "are afraid of dogs",
        "can see at night",
        "eat plants"
      ]
@@ -145,12 +159,12 @@ function make_slides(f) {
         "prevalence_level": this.stim.prevalence_level,
         "response" : $("input:radio[name=radio_button]:checked").val(),
         "rt":this.rt,
-        "property_type": this.stim.type,
+        "property_type": this.stim.property_type,
         "property": this.stim.property,
         "category": this.stim.category//,
       });
       // CHECK THAT THIS IS LAST TRIAL
-      // if (this.trial_num == exp.stims.length){
+      if (this.trial_num == exp.stims.length){
 
         minorityInterpretations = _.filter(exp.data_trials, function(x){
           return ( 
@@ -160,8 +174,8 @@ function make_slides(f) {
         })
 
         // set stimuli to be explained,
-        slides.explain_responses.present = _.shuffle(minorityInterpretations).slice(0, 5)
-      // }
+        slides.explain_responses.present = _.shuffle(minorityInterpretations).slice(0, 4)
+      }
       this.trial_num++;
     }
   });
@@ -172,17 +186,17 @@ function make_slides(f) {
     name: "explain_responses",
 
     // present : _.shuffle(_.range(numTrials)),
-    trial_num : 1,
-    present : _.range(5),
+    // trial_num : 1,
+    present : _.range(4),
     //this gets run only at the beginning of the block
     present_handle : function(stim) {
       this.startTime = Date.now();
 
       $(".err").hide();
-      $("#followUpResponse").html('')
+      $("#followUpResponse").val('')
 
       tfDict = {0: false, 1: true}
-
+      this.trial_num = stim.trial_num
       this.stim = stim
 
       this.evidence_prompt = this.stim.prevalence + "% of "  + this.stim.category + " " + this.stim.property + ".\n";
@@ -236,8 +250,9 @@ function make_slides(f) {
       exp.data_trials.push({
         "trial_type" : "explain_responses",
         "trial_num": this.trial_num,
-        "original_response" : this.stim.response,
-        // "response" : exp.sliderPost,
+        "response" : this.stim.response,
+        "prevalence": this.stim.prevalence,
+        "prevalence_level": this.stim.prevalence_level,
         "rt":this.rt,
         "property_type": this.stim.property_type,
         "property": this.stim.property,
@@ -299,7 +314,7 @@ function init() {
       }
   })();
 
-  exp.numTrials = 30;
+  exp.numTrials = stim_properties.length;
   // console.log(stim_properties.length)
   var creatures = _.map(_.shuffle(creatureNames).slice(0,exp.numTrials),
     function(x){return {category: x.category, exemplar: x.exemplar}}
@@ -317,6 +332,18 @@ function init() {
     exp.stims.push(stim)
   }
 
+  // exp.buttonOrder = _.sample(["true_left", "true_right"])
+  exp.buttons = _.shuffle([{key: "True", val:1}, {key: "False", val: 0}])
+
+ document.getElementById('truth_buttons').innerHTML = '';
+
+ for (i=0;i<exp.buttons.length;i++){
+
+  var radioElement = createRadioElement("radio_button" ,exp.buttons[i].key, exp.buttons[i].val, false)
+   document.getElementById('truth_buttons').appendChild(radioElement);
+   // document.getElementById('truth_buttons').appendChild(document.createElement("br"));
+ }
+
   console.log(exp.stims)
   exp.stimscopy = exp.stims.slice(0);
 
@@ -327,8 +354,8 @@ function init() {
   exp.condition = "endorsement";
   exp.instructions = "elaborate_instructions";
   exp.structure=[
-    // "i0",
-    // "instructions",
+    "i0",
+    "instructions",
     "endorsement",
     "memory_check",
     "explain_instructions",

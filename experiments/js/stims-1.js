@@ -1,90 +1,105 @@
 var stim_properties = [
-  { property: "have four legs", type: "physical" },
-  { property: "have spots", type: "physical" },
-  { property: "have brown fur", type: "physical" },
-  { property: "have very long wings", type: "physical" },
-  { property: "have an exquisite sense of smell", type: "physical" },
-  { property: "have intensely beautiful feathers", type: "physical" },
-  { property: "live to be twenty years old", type: "physical" },
-  { property: "live to be a hundred years old", type: "physical" },
-  { property: "live to be five hundred years old", type: "physical" },
-
-  { property: "are afraid of loud noises", type: "psychological" },
-  { property: "are afraid of dogs", type: "psychological" },
-  { property: "are intelligent", type: "psychological" },
-  { property: "experience empathy", type: "psychological" },
-  { property: "experience emotions", type: "psychological" },
-  { property: "have personalities", type: "psychological" },
-  { property: "mourn their dead", type: "psychological" },
-  { property: "develop phobias", type: "psychological" },
-  { property: "know when earthquakes are about to happen", type: "psychological" },
-  { property: "know how to open doors", type: "psychological" },
-  { property: "know how to ride bicycles", type: "psychological" },
-
-  { property: "use tools", type: "behavior" },
-  { property: "sleep during the day", type: "behavior"},
-  { property: "sing beautiful songs", type: "behavior"},
-  { property: "swim in shallow pools", type: "behavior"},
-  { property: "fly into building windows", type: "behavior"},
-  { property: "do handstands to scare off predators", type: "behavior"},
-  { property: "perform in the circus", type: "behavior"},
-  { property: "ride the subway", type: "behavior"},
-  { property: "play with bottlecaps", type: "behavior"},
-  { property: "chase their tails", type: "behavior"},
-  { property: "like to cuddle", type: "behavior"},
-
-  { property: "capture other animals' territory", type: "behavior_aggressive"},
-  { property: "hunt other animals", type: "behavior_aggressive"},
-  { property: "steal farmers' crops", type: "behavior_aggressive"},
-  { property: "get in fights with other animals", type: "behavior_aggressive"},
-  { property: "pound their chests to display dominance", type: "behavior_aggressive"},
-  { property: "torture other animals", type: "behavior_aggressive"},
-  { property: "attack hikers", type: "behavior_aggressive"},
-  { property: "carry out premeditated murder", type: "behavior_aggressive"},
-
-  { property: "eat garbage", type: "diet" },
-  { property: "eat human food", type: "diet" },
-  { property: "eat grass", type: "diet" },
-  { property: "feed on the carcasses of dead animals", type: "diet" },
-  { property: "eat insects", type: "diet" },
-  { property: "eat candy wrappers", type: "diet" },
-  { property: "eat people", type: "diet" },
-  { property: "cannibalize each other", type: "diet" },
-  { property: "drink soda", type: "diet" },
-  { property: "drink alcohol left behind by tourists", type: "diet" },
-  { property: "eat cannabis", type: "diet" },
-  { property: "fish in the Hudson River", type: "diet" },
-
-  { property: "live in trees", type: "habitat" },
-  { property: "live in zoos", type: "habitat" },
-  { property: "live in the hulls of sea vessels", type: "habitat" },
-  { property: "live in urban areas", type: "habitat" },
-  { property: "live in high-rise buildings", type: "habitat" },
-
-  { property: "carry Lyme disease", type: "disease_other"},
-  { property: "carry malaria", type: "disease_other"},
-  { property: "transmit HIV", type: "disease_other"},
-  { property: "transmit rabies", type: "disease_other"},
-
-  { property: "get addicted to nicotine", type: "disease_self"},
-  { property: "develop back problems", type: "disease_self"},
-  { property: "have seizures", type: "disease_self"},
-  { property: "have strange genetic mutations", type: "disease_self"},
-  { property: "get dandruff", type: "disease_self"},
-  { property: "get cancer", type: "disease_self"},
-  { property: "lose their teeth", type: "disease_self"},
-  { property: "go bald", type: "disease_self"},
-
-  { property: "give birth underwater", type: "reproduction"},
-  { property: "lay eggs in other birds' nests", type: "reproduction"},
-  { property: "lay eggs without needing fertilization", type: "reproduction"},
-  { property: "attract mates by secreting pheromones", type: "reproduction"},
-  { property: "get erections", type: "reproduction"},
-  { property: "have a menstrual cycle", type: "reproduction"},
-  { property: "have dozens of sexual partners", type: "reproduction"}
-
+  {
+    "property": "perform in the circus",
+    "property_type": "behavior"
+  },
+  {
+    "property": "drink soda",
+    "property_type": "diet"
+  },
+  {
+    "property": "attack hikers",
+    "property_type": "behavior_aggressive"
+  },
+  {
+    "property": "live in zoos",
+    "property_type": "habitat"
+  },
+  {
+    "property": "get addicted to nicotine",
+    "property_type": "disease_self"
+  },
+  {
+    "property": "carry malaria",
+    "property_type": "disease_other"
+  },
+  {
+    "property": "fish in the Hudson River",
+    "property_type": "diet"
+  },
+  {
+    "property": "steal farmers' crops",
+    "property_type": "behavior_aggressive"
+  },
+  {
+    "property": "develop back problems",
+    "property_type": "disease_self"
+  },
+  {
+    "property": "torture other animals",
+    "property_type": "behavior_aggressive"
+  },
+  {
+    "property": "get dandruff",
+    "property_type": "disease_self"
+  },
+  {
+    "property": "live in the hulls of sea vessels",
+    "property_type": "habitat"
+  },
+  {
+    "property": "live in urban areas",
+    "property_type": "habitat"
+  },
+  {
+    "property": "eat human food",
+    "property_type": "diet"
+  },
+  {
+    "property": "go bald",
+    "property_type": "disease_self"
+  },
+  {
+    "property": "like to cuddle",
+    "property_type": "behavior"
+  },
+  {
+    "property": "know when earthquakes are about to happen",
+    "property_type": "psychological"
+  },
+  {
+    "property": "are intelligent",
+    "property_type": "psychological"
+  },
+  {
+    "property": "are afraid of loud noises",
+    "property_type": "psychological"
+  },
+  {
+    "property": "feed on the carcasses of dead animals",
+    "property_type": "diet"
+  },
+  {
+    "property": "mourn their dead",
+    "property_type": "psychological"
+  },
+  {
+    "property": "have brown fur",
+    "property_type": "physical"
+  },
+  {
+    "property": "have very long wings",
+    "property_type": "physical"
+  },
+  {
+    "property": "sleep during the day",
+    "property_type": "behavior"
+  },
+  {
+    "property": "eat grass",
+    "property_type": "diet"
+  }
 ]
-
 
 var creatureNames =
     [
@@ -141,8 +156,8 @@ var creatureNames =
 
     var prev_levels = _.keys(frequency_ranges)
 
-    var n_trials = 30,
-        n_trials_per_range = 30 / prev_levels.length;
+    var n_trials = stim_properties.length,
+        n_trials_per_range = n_trials / prev_levels.length;
 
     var prevalences_to_present = [];
 

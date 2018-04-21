@@ -44,7 +44,7 @@
   <div class="slide" id="i0" >
     <img src="_shared/images/cocologo.png" alt="Stanford CoCoLab" id="cocologo"></img>
     <p id="cocolab">Stanford CoCoLab</p>
-    <p id="instruct-text">You will read <span id="total-num">{{}}</span> prompts about animals and be asked some questions about them. The HIT should take approximately 5 minutes. Please pay attention, thanks!</p>
+    <p id="instruct-text">You will read <span id="total-num">{{}}</span> prompts about animals and be asked some questions about them. The HIT should take approximately 7 minutes. Please pay attention, thanks!</p>
     <button id="start_button" type="button">Start Experiment</button>
 
     <p style="font-family:courier; font-size:14px; text-align: justify;">Please note: There will be multiple posted versions of this HIT (name: <strong>Language Study - Animals 13</strong>) throughout today and possibly tomorrow. You will not be allowed to complete multiple HITs in this series. Please attempt only one.</p>
@@ -111,10 +111,11 @@
   <div class="slide"  id="endorsement">
     <br>
     <p class="evidence"></p>
-    <p>Would you say the following sentence is true or false?</p>
+    <p>Do you think the following sentence is true or false?</p>
     <p class="query"></p>
-    <label><input type="radio" name="radio_button" value=1>True</label>
-    <label><input type="radio" name="radio_button" value=0>False</label>
+    <div id="truth_buttons"></div>
+    <!-- <label><input type="radio" name="radio_button" value=1>True</label> -->
+    <!-- <label><input type="radio" name="radio_button" value=0>False</label> -->
     <br><br>
     <button onclick="_s.button()">Continue</button>
     <div class="err">Please make a choice before continuing.</div>
