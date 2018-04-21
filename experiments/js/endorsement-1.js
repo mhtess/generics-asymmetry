@@ -161,7 +161,8 @@ function make_slides(f) {
         "rt":this.rt,
         "property_type": this.stim.property_type,
         "property": this.stim.property,
-        "category": this.stim.category//,
+        "category": this.stim.category,
+        "left_button": exp.buttons[0]["key"]
       });
       // CHECK THAT THIS IS LAST TRIAL
       if (this.trial_num == exp.stims.length){
