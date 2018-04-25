@@ -307,7 +307,7 @@ function init() {
 
   repeatWorker = false;
   (function(){
-      var ut_id = "mht-genend-20180421";
+      var ut_id = "mht-genend-20180425";
       if (UTWorkerLimitReached(ut_id)) {
         $('.slide').empty();
         repeatWorker = true;
@@ -322,7 +322,7 @@ function init() {
   )
 
   var properties_to_be_tested = _.shuffle(stim_properties).slice(0,exp.numTrials)
-  prevalences_to_present = _.shuffle(prevalences_to_present)
+  var shuffled_prevalences_to_present = _.shuffle(prevalences_to_present)
 
   exp.stims = [];
 
@@ -330,7 +330,7 @@ function init() {
     var stim = _.extend(
       properties_to_be_tested[i], 
       creatures[i], 
-      prevalences_to_present[i]
+      shuffled_prevalences_to_present[i]
       ) 
     exp.stims.push(stim)
   }
