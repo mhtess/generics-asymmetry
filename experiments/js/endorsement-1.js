@@ -316,12 +316,14 @@ function init() {
   })();
 
   exp.numTrials = stim_properties.length;
-  // console.log(stim_properties.length)
+  console.log(stim_properties.length)
   var creatures = _.map(_.shuffle(creatureNames).slice(0,exp.numTrials),
     function(x){return {category: x.category, exemplar: x.exemplar}}
   )
 
-  var properties_to_be_tested = stim_properties.slice(0,exp.numTrials)
+  var properties_to_be_tested = _.shuffle(stim_properties).slice(0,exp.numTrials)
+  prevalences_to_present = _.shuffle(prevalences_to_present)
+
   exp.stims = [];
 
   for (i=0;i<exp.numTrials;i++){
