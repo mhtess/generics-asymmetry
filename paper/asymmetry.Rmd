@@ -129,29 +129,54 @@ In addition to revealing the quantitative intracacies of the asymmetry, our very
 
 
 
-# The asymmetry between truth conditions and interpretations
+# The asymmetry between endorsements and interpretations
 
-An asymmetry between truth conditions and interpretations occurs when the prevalence levels at which a statement is endorsed differ from the prevalences implied by the same statement. 
-The asymmetry is present generic statements about biological properties, as reported by @Cimpian2010.
-Generic statements are accepted for a wide range of prevalence levels (e.g., even when the property is present in only 10% of cases) but when participants learn from generics, the statements are often interpreted quite strongly (e.g., all or almost all have the property). 
+The asymmetry between endorsements and interpretations results from comparing participants' responses on  a two-alternative forced choice (2AFC) truth judgment task (as explored in Chapter 3) to implied prevalence ratings, typically on a 101-pt scale (e.g., the percentage of the category with the property; Chapter 2).
+These two measurements are not directly comparable because of the different scales.
 
-## Technical description
-
-The empirical asymmetry between truth conditions and interpretations was reported by @Cimpian2010.
-Truth conditions data result from an endorsement task, a two-alternative forced choice (2AFC) paradigm (as explored in Chapter 3).
-Interpretation data are prevalence ratings, typically on a 101-pt scale (e.g., the percentage of the category with the property).
-Thus, these two constructs are not in the same measurement space; one must be transformed into the other in order to compare them.
-
-To accomplish this, @Cimpian2010 took the 2AFC endorsement data and computed the average prevalence level at which participants endorse the generic (*average truth conditions*).
-<!-- *Average truth conditions* is analagous to an average threshold.  -->
-To compute a single participant's average truth conditions, the endorsement data is filtered to look at only the trials where a participant endorsed the generic. 
-Using only the endorsed trials, the mean of the referent prevalence levels (empirically supplied to participants) is computed (for each participant separately).
-For example, if a participant endorsed the generic at 50%, 70%, and 90% prevalence levels, their *average truth conditions* would be 70%. 
-Notice that as a participant becomes more lenient with the generic (endorsing it at lower prevalence levels), their corresponding average truth conditions will lower.
-The theoretical minimum average truth conditions is 50%, for a participant who endorsed the generic at all prevalence levels.^[
-  Technically, average truth conditions could be less than 50% were a participant to endorse the statement at low prevalence levels and then reject the statement at high prevalence levels. We do not expect this behavior for generics about positive properties. 
+In order to compare the two, @Cimpian2010 took the 2AFC endorsement data and computed the average prevalence level at which individual participants endorsed the generic (*average endorsed prevalence*).
+A single participant's average endorsed prevalence is the mean of the prevalence levels for which the participant endorsed the generic. 
+For example, if a participant endorsed the generic at 50%, 70%, and 90% prevalence levels, their *average endorsed prevalence* would be 70%. 
+As a participant becomes more lenient with the generic (endorsing it at lower prevalence levels), their average endorsed prevalence decreases; as a participant becomes more conservative (e.g., only endorsing the generic when the property applies to *all* or *almost all*), their average endorsed prevalence increases. 
+The theoretical minimum average endorsed prevalence is 50%, for a participant who endorsed the generic at all prevalence levels.^[
+  Technically, average endorsed prevalence could be less than 50% were a participant to endorse the statement at low prevalence levels and then reject the statement at high prevalence levels. 
 ]
-If a participant fails to endorse the generic for all prevalence levels, @Cimpian2010 assigned them an average truth conditions of 100%, because presumably the participant would only endorse the generic if it were true of 100% of members.
+If a participant fails to endorse the generic for all prevalence levels, @Cimpian2010 assigned them an average endorsed prevalence of 100%, because presumably the participant would only endorse the generic if it were true of 100% of members.
+<!-- @Cimpian2010's analysis transforms the endorsement data onto the prevalence scale and behaves intuitively to how one would think the construct should behave. -->
+<!-- As a participant becomes more lenient with the generic (endorsing it at lower prevalence levels), their average endorsed prevalence decreases; as a participant becomes more conservative (e.g., only endorsing the generic when the property applies to *all* or *almost all*), their average endorsed prevalence increases.  -->
+
+With the exception of how the analysis handles participants who never endorse the statement, @Cimpian2010's analysis is a participant-wise application of Bayes' rule.
+Each task each measures a conditional probability. 
+The implied prevalence task measures the probability of different prevalence levels $p$ given a generic statement $u$: $P_{implied}(p \mid u)$.
+The endorsement tasks measure the probability of endorsing a generic utterance $u$ given different prevalence levels: $P_{endorsed}(u \mid p)$. 
+These two conditional probabilities are related via Bayes' rule: $P(p \mid u) \propto P(u \mid p) \cdot P(p)$.
+For the asymmetry analysis, the mean implied prevalence $\sum_{p} p \cdot P_{implied}(p \mid u)$ is compared to the expected endorsement prevalence $\sum_{p} p\cdot P_{endorsed}(p \mid u)$, where $P_{endorsed}(p \mid u) \propto P_{endorsed}(u \mid p) \cdot P(p)$.
+@Cimpian2010's analysis applies this calculation assuming a uniform prior on prevalences $P(p)$.
+Recognizing the formal relationship behind @Cimpian2010's calculation makes explicit its assumptions (e.g., the uniform prior on $p$).
+Further, seeing the mathematical relationship provides a way to apply the same analysis on a by-item, as opposed to a by-participant, basis.
+
+Because of the uniform prior, computing $P_{endorsed}(p \mid u)$ amounts to take the proportion of participants who endorse the generic at each prevalence level and normalizing those proportions to create a probability distribution. 
+For example, if the proportions of endorsements for the five prevalence levels (10, 30, 50, 70, 90%) is $[0.2, 0.2, 0.6, 0.9, 0.9]$, the probability distribution $P_{endorsed}(p \mid u)$ would be [0.07, 0.07, 0.21, 0.32, 0.32]. 
+This distribution is arrived at by taking the proportion of endorsements and dividing it by the sum of all endorsement proportions (e.g., $0.07 = \frac{0.2}{0.2 + 0.2 + 0.6 + 0.9 + 0.9}$, $0.32 = \frac{0.9}{0.2 + 0.2 + 0.6 + 0.9 + 0.9}$).
+We then treat this distribution as a distribution over prevalence and take the expectation (i.e., the mean) of that distribution: $0.07 \times 10\% + 0.07 \times 30\% + 0.21 \times 50\% + 0.32 \times 70\% + 0.32 \times 90\% = 65\%$.
+
+<!-- However, because participants in @Cimpian2010's experiment rate generics about each property only once (with only one prevalence level; e.g., 30% have yellow fur), this analysis collapses across generics of individual items used in the experiment. -->
+<!-- Unless a participant provides judgments at all prevalence levels (10, 30, 50, 70, 90%) for a particular item (e.g., have yellow fur), then the average endorsed prevalence for a particular item cannot be computed.  -->
+<!-- Thus, we propose a similar, alternative formulation of averaged endorsed prevalence derived from basic probability theory.  -->
+<!-- Our formulation will generalize to item-wise analysis we explore in the empirical part of this paper. -->
+
+
+<!-- An asymmetry between truth conditions and interpretations occurs when the prevalence levels at which a statement is endorsed differ from the prevalences implied by the same statement.  -->
+<!-- The asymmetry is present generic statements about biological properties, as reported by @Cimpian2010. -->
+<!-- Generic statements are accepted for a wide range of prevalence levels (e.g., even when the property is present in only 10% of cases) but when participants learn from generics, the statements are often interpreted quite strongly (e.g., all or almost all have the property).  -->
+
+<!-- ## Technical description -->
+
+<!-- The empirical asymmetry between truth conditions and interpretations was reported by @Cimpian2010. -->
+<!-- Truth conditions data result from an endorsement task, a two-alternative forced choice (2AFC) paradigm (as explored in Chapter 3). -->
+<!-- Interpretation data are prevalence ratings, typically on a 101-pt scale (e.g., the percentage of the category with the property). -->
+<!-- Thus, these two constructs are not in the same measurement space; one must be transformed into the other in order to compare them. -->
+
 
 This asymmetry is anomalous (at least in theory) when compared again quantifiers.
 *All* is the easiest to think about: On a true/false task, participants should only endorse an *all* quantified statement when the prevalence is 100%; separately, when participants learn from a sentence containing *all*, they should believe the prevalence is 100%. 
