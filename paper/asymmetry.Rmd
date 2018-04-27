@@ -123,7 +123,7 @@ In addition to revealing the quantitative intracacies of the asymmetry, our very
 <!-- By quantitatively comparing the two measurements, @Cimpian2010 found an asymmetry between between truth conditions and implied prevalence of generic statements but not for quantified statementse involving *all* or *most*. -->
 
 <!-- Not all generics have strong interpretations, however.  -->
-<!-- "Mosquitos carry malaria" really seems to only have the quantificational force of an existential claim, meaning *some mosquitos carry malaria*. -->
+<!-- "Mosquitos carry malaria" really seems to only have the quantificational force of an existential claim, meaning *some \mosquitos carry malaria*. -->
 <!-- Weak interpretations from generics have been observed in tasks having participants draw inferences about individual members of a kind [@Khemlani2009; @Khemlani2012] as well as asking about implied prevalence [@Cimpian2010; Expt. 3]. -->
 <!-- Coupled with the truth conditions measurements, @Cimpian2010 found that a significant reduction in the asymmetry for generics about accidental properties (e.g., "Glippets have wet fur."). -->
 
@@ -159,6 +159,50 @@ Because of the uniform prior, computing $P_{endorsed}(p \mid u)$ amounts to take
 For example, if the proportions of endorsements for the five prevalence levels (10, 30, 50, 70, 90%) is $[0.2, 0.2, 0.6, 0.9, 0.9]$, the probability distribution $P_{endorsed}(p \mid u)$ would be [0.07, 0.07, 0.21, 0.32, 0.32]. 
 This distribution is arrived at by taking the proportion of endorsements and dividing it by the sum of all endorsement proportions (e.g., $0.07 = \frac{0.2}{0.2 + 0.2 + 0.6 + 0.9 + 0.9}$, $0.32 = \frac{0.9}{0.2 + 0.2 + 0.6 + 0.9 + 0.9}$).
 We then treat this distribution as a distribution over prevalence and take the expectation (i.e., the mean) of that distribution: $0.07 \times 10\% + 0.07 \times 30\% + 0.21 \times 50\% + 0.32 \times 70\% + 0.32 \times 90\% = 65\%$.
+
+## Computational model predictions
+
+From Chapters 2 and 3, we know that the following are good models for $P_{implied}(p \mid u)$ and $P_{endorsed}(u \mid p)$:
+
+\begin{eqnarray}
+L(p \mid u) \propto p \cdot P(p) \\
+S(u \mid p) \propto L(p \mid u) ^ \alpha
+\end{eqnarray}
+
+Let us assume that $P(p)$ is uniform; that is, $P(p) \propto 1$.
+That makes, $L(p \mid u) \propto p$.
+To compute the expectation of $L(p \mid u)$, we must first renormalize the distribution:
+
+\begin{eqnarray}
+L(p \mid u) = \frac{p}{Z}, \text{where } Z = \int_0^1p\cdot \diff p \\
+ \int_0^1p\cdot \diff p = \frac{1}{2}p^2 \Big|_0^1  = \frac{1}{2} \\
+\end{eqnarray}
+
+therefore:  $L(p \mid u) = 2p$.
+
+\begin{eqnarray}
+\mathbb{E}_{p \sim L(p \mid u)}[p] = \int_0^1p \times 2p \diff p \\
+= \int_0^12p^2 \diff p = \frac{2}{3} p^3 \Big|_0^1 = \frac{2}{3}
+\end{eqnarray}
+
+Again, assuming a uniform prior:
+\begin{align}
+S(u \mid p) \propto L(p \mid u) ^ \alpha = (2p)^\alpha
+\end{align}
+If $\alpha = 1$, then we just have $S(u \mid p) = 2p$. Then, computing average endorsed prevalence via Bayes' rule, we get $S_{endorsed}(p \mid u) \propto 2p \times 1 = 2p$, the expectation of which will also be $\frac{2}{3}$.
+
+What happens if $\alpha = 2$? 
+
+\begin{eqnarray}
+S(u \mid p) \propto (2p)^2 = 4p^2
+\end{eqnarray}
+
+after normalization, this becomes: $S(u \mid p) = 3p^2$. Then, to calculate 
+
+\begin{eqnarray}
+\mathbb{E}_{p \sim S(p \mid u)}[p] = \int_0^1p \times 3p^2 \diff p \\
+= \int_0^1 3p^3 \diff p = \frac{3}{4} p^4 \Big|_0^1 = \frac{3}{4}
+\end{eqnarray}
 
 <!-- However, because participants in @Cimpian2010's experiment rate generics about each property only once (with only one prevalence level; e.g., 30% have yellow fur), this analysis collapses across generics of individual items used in the experiment. -->
 <!-- Unless a participant provides judgments at all prevalence levels (10, 30, 50, 70, 90%) for a particular item (e.g., have yellow fur), then the average endorsed prevalence for a particular item cannot be computed.  -->
