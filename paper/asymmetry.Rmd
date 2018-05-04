@@ -68,6 +68,18 @@ library(ggthemes)
 library(RColorBrewer)
 library(ggpirate)
 theme_set(theme_few())
+
+format_regression_effects <- function(brm_summary, fixed_effect_name, n_digits = 3){
+   #print(fixed_effect_name)
+   e1 <- brm_summary[["fixed"]][[fixed_effect_name, "Estimate"]]
+   e_lower <- brm_summary[["fixed"]][[fixed_effect_name, "l-95% CI"]]
+   e_upper <- brm_summary[["fixed"]][[fixed_effect_name, "u-95% CI"]]
+   return(paste(
+     format(e1, digits = n_digits), " [", 
+     format(e_lower, digits = n_digits), ", ", 
+     format(e_upper, digits = n_digits), "]", sep = ""))
+}
+
 ```
 
 ```{r analysis_preferences}
@@ -153,13 +165,13 @@ For the asymmetry analysis, the mean implied prevalence $\sum_{p} p \cdot P_{imp
 <!-- Recognizing the formal relationship behind @Cimpian2010's calculation makes explicit its assumptions (e.g., the uniform prior on $p$). -->
 
 Now that we have made explicit the mathematical relationship between implied and endorsed prevalence, we can apply the same analysis on a by-item, as opposed to a by-participant, basis.^[
-  If one wanted to calculate average endorsed prevalence on a participant-wise basis in addition to an item-wise basis, each participant must make a judgment at every prevalence level for each item. 
-  This is perhaps pragmatically strange (though the task is already a bit pragmatically strange) and @Cimpian2010 does not do this. 
-  Instead, he calculates average endorsed prevalence at the participant level and aggregates at the level of *property type*  in order to compare domain differences (e.g., treating *purple feathers* and *blue scales* as the same kind of property). 
+  If one wanted to calculate average endorsed prevalence on a participant-wise basis in addition to an item-wise basis, each participant would have to make a judgment at every prevalence level for each item. 
+  This is perhaps pragmatically strange (though the task is already a bit pragmatically strange) and @Cimpian2010  opts against this. 
+  Instead, they calculate average endorsed prevalence at the participant level (intuitively, getting at each participant's threshold for endorsement) and aggregate at the level of *property type*  (e.g., biological vs. accidental) in order to compare domain differences.
 ]
 Because of the uniform prior, computing $P_{endorsed}(p \mid u)$ amounts to take the proportion of participants who endorse the generic at each prevalence level and normalizing those proportions to create a probability distribution. 
 For example, let's say participants rate the item "Lorches live in trees" as true at the five prevalence levels (10, 30, 50, 70, 90%) with proportions $[0.2, 0.2, 0.6, 0.9, 0.9]$ (e.g., 20% of participants endorse the statement when 10% or 30% of lorches live in trees, 90% of participants endorse the statement when 70% or 90% live in trees, etc.).
-To treat turn proportions into a probability distribution $P_{endorsed}(p \mid u)$, we would divide each by the sum of all endorsement proportions (e.g., $\frac{0.2}{0.2 + 0.2 + 0.6 + 0.9 + 0.9} = 0.07$, $\frac{0.9}{0.2 + 0.2 + 0.6 + 0.9 + 0.9} = 0.32$), yielding the following distribution [0.07, 0.07, 0.21, 0.32, 0.32].
+We treat the proportions as an *unnormalized* probability distribution $P_{endorsed}(p \mid u)$ and normalize by dividing each by the sum of all endorsement proportions (e.g., $\frac{0.2}{0.2 + 0.2 + 0.6 + 0.9 + 0.9} = 0.07$, $\frac{0.9}{0.2 + 0.2 + 0.6 + 0.9 + 0.9} = 0.32$), yielding the following distribution: [0.07, 0.07, 0.21, 0.32, 0.32].
 We then take the expectation (i.e., the mean) of this distribution with respect to the prevalence level associated with each probability: *average endorsed prevalence* $= 0.07 \times 10\% + 0.07 \times 30\% + 0.21 \times 50\% + 0.32 \times 70\% + 0.32 \times 90\% = 65\%$.
 The *average implied prevalence* is the mean of participants responses to the question: "How many lorches live in trees?" after learning that "Lorches live in trees" ($\sim 90\%$, from Ch. 2 Expt. 2). 
 Thus, in this example, there is an asymmetry between the average endorsed prevalence ($65\%$) and average implied prevalence ($\sim 90\%$).
@@ -169,7 +181,7 @@ In theory, *all* should get the following endorsement pattern: $[0, 0, 0, 0, 1]$
 *Most* ought to have a similar pattern:  $[0, 0, 1, 1, 1]$ for endorsements, resulting in an average endorsed prevalence of about 75%.^[
   We assume here that 50% prevalence is sufficient to endorse most. The theoretical symmetry between average endorsed prevalence and average implied prevalence does not depend upon this decision, but only that there is some threshold beyond which *most* is fully endorsed.
 ]
-If interpretation followed a fixed-threshold model with uniform priors on prevalence, the implied prevalence given a most statement would be uniformly distributed between 50% and 100%, resulting in an avaregae of 75%. 
+If interpretation followed a fixed-threshold model with uniform priors on prevalence, the implied prevalence given a *most* statement would be uniformly distributed between 50% and 100%, resulting in an avaregae of 75%. 
 Again, there is symmetry between these two measurements for *most* and *all*. 
 However, this theoretical result for *most* assumes a uniform prior on $p$ for implied prevalence.
 Should we expect something different for the generic?
@@ -181,7 +193,7 @@ L(p \mid u) \propto p \cdot P(p) \\
 S(u \mid p) \propto L(p \mid u)^\alpha
 \end{eqnarray}
 
-To compare to the theoretical analysis for *most*, let us assume that $P(p)$ is uniform; that is, $P(p) \propto 1$, .
+To compare to the theoretical analysis for *most*, let us assume that the prevalence prior is uniform; that is, $P(p) \propto 1$, .
 That makes, $L(p \mid u) \propto p$.
 To compute the expectation of $L(p \mid u)$, we must first normalize the distribution:
 
@@ -190,22 +202,25 @@ L(p \mid u) = \frac{p}{Z}, \text{where } Z = \int_0^1p\cdot \diff p \\
  \int_0^1p\cdot \diff p = \frac{1}{2}p^2 \Big|_0^1  = \frac{1}{2}
 \end{eqnarray}
 
-therefore:  $L(p \mid u) = 2p$. The expected value of the implied prevalence is then given by:
+therefore:  $L(p \mid u) = 2p$. 
+The average implied prevalence is then:
 
 \begin{eqnarray}
 \mathbb{E}_{p \sim L(p \mid u)}[p] = \int_0^1p \times 2p \diff p \\
 = \int_0^12p^2 \diff p = \frac{2}{3} p^3 \Big|_0^1 = \frac{2}{3}
 \end{eqnarray}
 
-So the average implied prevalence given a generic statement assuming a uniform prior over prevalence is 66%.
-What about the average endorsed prevalence?
+The average implied prevalence given a generic statement assuming a uniform prior over prevalence is 66%.
+What is the average endorsed prevalence?
 <!-- Again, assuming a uniform prior: -->
 \begin{align}
 S(u \mid p) \propto L(p \mid u) = (2p)^\alpha
 \end{align}
 Assume $\alpha = 1$. 
-Then we just have $S(u \mid p) = 2p$. 
-Computing average endorsed prevalence via Bayes' rule, we get $S_{endorsed}(p \mid u) \propto 2p \times P(p) = 2p \times 1 = 2p$, the expectation of which will also be $\frac{2}{3}$.
+Then $S(u \mid p) = 2p$. 
+Following @Cimpian2010, computing average endorsed prevalence via Bayes' rule assuming a uniform prior: 
+$$S_{endorsed}(p \mid u) \propto 2p \times P(p) = 2p \times 1 = 2p$$
+the expectation of which will also be $\frac{2}{3}$.
 Thus, there is also a theoretical symmetry between average endorsed and implied prevalence for a generic when assuming uniform priors on prevalence.\footnote{
 In this case, increasing $\alpha$ produces an asymmetry in the unpredicted direction. For example, if $\alpha = 2$: 
 
@@ -253,9 +268,11 @@ fig.sims.priors <- ggplot(sims.combined %>%
                              labels = c(
                                'prevalence prior'
                                         ))), 
-       aes(x = state))+
-    geom_density(aes(y = ..scaled..), fill= 'black', size = 0.6, alpha = 0.7, adjust = 1.1)+
+       aes(x = state, color = PriorShape))+
+    geom_density(aes(y = ..scaled..), fill = 'grey32',size = 0.6, alpha = 0.7, adjust = 1.1)+
     theme_few() +
+    scale_color_brewer(palette = 'Set1') + 
+    guides(color = F)+
     scale_x_continuous(breaks = c(0, 1), limits= c(0, 1))+
     scale_y_continuous(breaks = c(0, 1), limits= c(0, 1))+
     ylab("Probability density (scaled)") +
@@ -287,10 +304,12 @@ fig.sims.distributions <- ggplot(sims.combined %>%
                 #               '"most"\n(threshold = 0.5)',
                 #                'generic\n(uncertain threshold)'
                 #                         ))), 
-       aes(x = state, fill = src, color = src))+
+       aes(x = state, fill = PriorShape, color = src))+
     geom_density(aes(y = ..scaled..), 
-                 color ='black', fill = 'grey50', size = 0.6, alpha = 0.7, adjust = 1.1)+
+                 color ='black', size = 0.6, alpha = 0.7, adjust = 1.1)+
     theme_few() +
+    scale_fill_brewer(palette = 'Set1') + 
+    guides(fill = F)+
     scale_x_continuous(breaks = c(0, 1), limits= c(0, 1))+
     scale_y_continuous(breaks = c(0, 1), limits= c(0, 1))+
     ylab("Scaled posterior density") +
@@ -309,7 +328,8 @@ fig.sims.truthJudgments <- s1.simulations %>%
   mutate(prior = factor(prior, levels = c("uniform", "biological_rare", "accidental_rare"),
                                     labels = c("uniform", "rare, strong", "rare, weak"))) %>%
   ggplot(., aes ( x = referent_prevalence, y = endorsement,
-                  linetype = prior))+
+                  linetype = prior, color = prior))+
+    scale_color_brewer(palette = 'Set1') + 
   geom_point()+
   geom_line()+
   theme(legend.position = c(0.8, 0.4) ,
@@ -327,8 +347,9 @@ fig.sims.asymmetry <- m.gen.asym %>%
                                     labels = c( "uniform", "rare, strong",  "rare, weak")),
          model = factor(model, levels = c("S1", "L0"), labels = c("Endorsed", "Implied"))) %>%
   ggplot(., aes(x = PriorShape, y = expval, 
-                fill = model))+
-  scale_fill_solarized() + 
+                fill = PriorShape, alpha = model))+
+  scale_fill_brewer(palette = 'Set1') + 
+  scale_alpha_manual(values = c(0.6, 1))+
       scale_y_continuous(breaks = c(0, 0.5, 1), limits= c(0, 1))+
   ylab("Average prevalence")+
   geom_col(position= position_dodge(), color = 'black')+
@@ -336,7 +357,8 @@ fig.sims.asymmetry <- m.gen.asym %>%
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
         legend.position = c(0.80, 0.7),
         legend.title = element_blank(),
-        axis.title.x = element_blank())
+        axis.title.x = element_blank())+
+  guides(fill = F)
 
 
 cowplot::plot_grid(
@@ -464,7 +486,7 @@ The relevant prevalence priors have already been measured in Chapter 2 (Expt. 1A
 
 ### Participants
 
-We recruited 40 participants over MTurk.  
+We recruited 40 participants over MTurk.
 We chose a sample size at least twice as large as the original study by @Cimpian2010 (original $n = 20$), and to match that of Ch. 2 Expt. 1B. 
 All participants were self-reported native English speakers and none completed the analagous implied prevalence task (Ch. 2 Expt. 1B).
 The experiment took about 5 minutes and participants were compensated \$0.60.
@@ -481,7 +503,7 @@ Each prevalence level appeared once for each property type (5 prevalence levels 
 
 ### Results
 
-```{r figCbgResults, fig.width=10.5, fig.asp = 0.35, fig.cap="Words"}
+```{r figCbgResults, fig.width=10.5, fig.asp = 0.35, fig.cap="Proportion of endorsements for novel generic sentences in Expt. 1 (Replication of @Cimpian2010 Expt. 1)."}
 load(file = "cached_results/cbg_results.RData")
 
 dodge_width <- 7
@@ -530,7 +552,8 @@ fig.cbg.asym <- bind_rows(
                                                     "gradable adj + part",
                                                     "accidental")),
          src = factor(src, levels = c("truth conditions",
-                                      "implied prevalence"))) %>%
+                                      "implied prevalence"),
+                      labels = c("Endorsed", "Implied"))) %>%
   ggplot(., aes( x = `Property type`, y = mean, ymin = ci_lower,
                  ymax = ci_upper, fill = `Property type`, alpha = src))+
   geom_col(position = position_dodge(dodge_width), width = dodge_width,
@@ -540,7 +563,7 @@ fig.cbg.asym <- bind_rows(
   scale_fill_solarized()+
   scale_alpha_manual(values = c(0.6, 1))+
   scale_y_continuous(limits = c(0, 100))+
-  ylab("Average truth conditions")+
+  ylab("Average prevalence")+
   guides(fill = F)+
   theme(axis.text.x = element_text(angle = 45, vjust =1 ,hjust = 1),
         legend.title = element_blank(),
@@ -560,28 +583,132 @@ cowplot::plot_grid(
 ```
 
 
-For both behavioral data and model predictions (Eq. \ref{eq:S1}) we computed the average prevalence that led to an assenting judgment (the *average truth conditions*), for each property type and participant, following the procedure used by @Cimpian2010 and described in the previous section.
+```{r cbg results brms}
+load("cached_results/cbg_results_brms.RData") #rs.brm.endorse.prev.type
 
-For our pair of models, there are two parameters (the two speaker optimality parameters).
-We infer them using the same Bayesian data analytic approach as before. 
-The MAP and 95\% HPD intervals for $\lambda_1$ is 19.5 [10.5, 19.9] and $\lambda_2$ is 0.4 [0.34, 0.49].
-We then subjected the generic endorsement model to the same procedure as the human data. % subjected our model to the same procedure. 
+rs.brm.endorse.prev.type.summary <- summary(rs.brm.endorse.prev.type)
+```
 
-The speaker model $S_2$ returns a posterior probability of producing the generic, for each level of prevalence. 
-We sample a response (*agree* vs. *disagree*) from this posterior distribution for each prevalence level, simulating a single subject's data.
-As with the human data, we took the trials where the model agreed with the generic, and took the mean of the prevalence levels corresponding to those trials, giving us the average prevalence at which the model assented to the generic.
-We repeated this for each type of property 40 times to simulate a sample of 40 participants. 
-We repeated this procedure 1000 times to bootstrap 95% confidence intervals.
 
-The generic endorsement model predicted that *average truth conditions* should not vary appreciably across the different types of properties, consistent with the fact that generics are acceptable for broad range of prevalence levels for all property types.
-A similar absence of a gradient was observed in the human data ($\beta = 2.82; SE = 4.02; t(39) = 0.70; p = 0.49$; \red{Figure X}). 
-Interpretations of generic utterances are stronger than their average truth conditions for the biological properties but not for the accidental properties (Figure \ref{fig:exp2b}) with both human data, replicating @Cimpian2010, and the model; the extent of the difference is governed by prior property knowledge (mean prevalence when present $\gamma$, from Expt.~2a).
-The listener and speaker pair of models predicts human endorsements and interpretations of novel generic utterances well ($r^2(10) = 0.87$, MSE = 0.008).
-Thus, our model predicts that the asymmetry between truth conditions and implied prevalence should hold, but only for properties with the most extreme prior beliefs.
+Figure\ \@ref(fig:figCbgResults)A show the proportion of endorsements at each level of prevalence for the four differet kinds  of properties.
+To estimate the effects, we ran a Bayesian bernoulli mixed-effects regression model with fixed effects of prevalence (centered and scaled), property type and their interaction and random effects of intercept and property type by-participants and intercept by-item.
+There is a clear effect of prevalence levels $\beta_{prevalence} =$ `r format_regression_effects(rs.brm.endorse.prev.type.summary, "stim_prevalence")`, and some evidence that generics with body part properties $\beta_{body} =$ `r format_regression_effects(rs.brm.endorse.prev.type.summary, "stim_typepart")` and those described with gradable adjectives $\beta_{gradable} =$ `r format_regression_effects(rs.brm.endorse.prev.type.summary, "stim_typevague")` are endorsed more than the accidental property bare plurals. 
+In addition, there is evidence for a small interaction between prevalence and property type for the body $\beta_{body \times prevalence} =$ `r format_regression_effects(rs.brm.endorse.prev.type.summary, "stim_prevalence:stim_typepart")` and gradable properties $\beta_{gradable \times prevalence} =$ `r format_regression_effects(rs.brm.endorse.prev.type.summary, "stim_prevalence:stim_typevague")` in comparison to the accidental properties: The slope appears flatter for the accidental bare plurals, owing to the fact they are endorsed less at high prevalence levels.
+These same effects were not credibly different from zero for the color properties ($\beta_{color} =$ `r format_regression_effects(rs.brm.endorse.prev.type.summary, "stim_typecolor")`; $\beta_{color \times prevalence} =$ `r format_regression_effects(rs.brm.endorse.prev.type.summary, "stim_prevalence:stim_typecolor")`).
 
-In this study [as in @Cimpian2010's], *average truth conditions* is computed on a participant-wise basis but at the level of property type, not property. 
+Figure\ \@ref(fig:figCbgResults)B shows the average endorsed prevalence, computed using the procedure by @Cimpian2010 and described in the previous section, in comparison to the average implied prevalence from the same items (Ch. 2 Expt 1b). 
+We see that any differences that may exist for truth judgments at the various prevalence levels disappears when the *average endorsed prevalence* is computed. 
+This signature, combined with the very property-sensitive *implied prevalence*, produces asymmetries to varying degrees. 
 
-### Extended analysis: Average endorsed prevalence
+We generate model predictions by using the endorsement model to predict the truth judgment data using the parameters fit to the interpretation data from Ch. 2 (Expt. 1). 
+That is, these predictions are not fit to the empirical truth judgment data, but generated *a priori* from the model. 
+The endorsement model does have a free parameter, however, the speaker optimality parameter $\alpha$. 
+We set $\alpha = 1$ for these simulations. 
+
+
+```{r cbgModelResults, fig.width=10.5, fig.asp = 0.35, fig.cap="Model predictions for Expt. 1."}
+load(file = "cached_results/cbg_modelpredictions_alpha1_apriori.RData") #m.cbg.asym, m.c.asym.end, 
+
+dodge_width <- 0.07
+
+fig.cbg.m.tj <- m.c.asym.end %>%
+  mutate("Property type" = factor(param,
+                                         levels = c("part",
+                                                    "vague",
+                                                    "color",
+                                                    "accidental"),
+                                         labels = c("body part",
+                                                    "color adj + part",
+                                                    "gradable adj + part",
+                                                    "accidental"))) %>%
+  ggplot(., aes(  x = as.numeric(category), y = MAP, ymin = cred_lower,
+                 ymax = cred_upper, fill = `Property type`,
+                 color = `Property type`))+
+  geom_line(position = position_dodge(dodge_width), alpha = 0.4,
+            linetype = 3)+
+  geom_linerange(position = position_dodge(dodge_width), alpha = 0.6,
+                 size = 1)+
+  geom_point(position = position_dodge(dodge_width),
+             size = 2.5, shape = 21, color = 'black')+
+  scale_fill_solarized()+
+  scale_color_solarized()+
+  ylab("Proportion endorse")+
+  xlab("\n Referent prevalence")+
+  scale_x_continuous(limits = c(0, 1), breaks = c(.10,  .30, .50, .70, .90))+
+  scale_y_continuous(limits = c(0, 1), breaks = c(0, 0.5, 1))+
+  theme(legend.position = c(0.75, 0.27),
+        legend.title = element_blank())#+
+  #coord_fixed(ratio = 65)
+
+dodge_width <- 0.9
+
+fig.cbg.asym.m <- m.cbg.asym  %>%
+  ungroup() %>%
+  mutate("Property type" = factor(param,
+                                         levels = c("part",
+                                                    "vague",
+                                                    "color",
+                                                    "accidental"),
+                                         labels = c("body part",
+                                                    "color adj + part",
+                                                    "gradable adj + part",
+                                                    "accidental"))) %>%
+  ggplot(., aes( x = `Property type`, y = MAP, ymin = cred_lower,
+                 ymax = cred_upper, fill = `Property type`, alpha = src))+
+  geom_col(position = position_dodge(dodge_width), width = dodge_width,
+           color = 'black')+
+  geom_errorbar(position = position_dodge(dodge_width),
+                 size = 1, width = 0.1)+
+  scale_fill_solarized()+
+  scale_alpha_manual(values = c(0.6, 1))+
+  scale_y_continuous(limits = c(0, 1))+
+  ylab("Average prevalence")+
+  guides(fill = F)+
+  theme(axis.text.x = element_text(angle = 45, vjust =1 ,hjust = 1),
+        legend.title = element_blank(),
+        axis.title.x = element_blank()#,
+        #legend.position = c(0.75, 0.9)
+        )
+
+cowplot::plot_grid(
+  fig.cbg.m.tj + theme(plot.margin = unit(c(6, 3, 30, 0), "pt")), 
+  fig.cbg.asym.m + theme(plot.margin = unit(c(6, 6, 6, 0), "pt")),
+  #fig.sims.bars+ theme(plot.margin = unit(c(6, 0, 0, 0), "pt")),
+  nrow = 1,
+  labels = c("A", "B"),
+  rel_widths = c(1,1)
+)
+```
+
+<!-- the interpretation model to predict the implied prevalence data (as well as the simple statistical model to fit the prevalence prior data, both of which are from Ch. 2 Expt. 1). -->
+<!-- That is, a single model with the same prior knowledge is required to fit three data sources simultaneously.  -->
+<!-- The model parameters were inferred using Bayesian inference, putting the following prior on the speaker optimality parameter $\alpha \sim \text{Uniform}(0, 10)$. -->
+
+Figure\ \@ref(fig:cbgModelResults)A shows the predicted truth judgment data at each prevalence level.
+We see that the model shows increasing endorsements as a function prevalence. 
+Contra the empirical data, however, there is a small tendency to endorse the accidental generics *more*.
+Figure\ \@ref(fig:cbgModelResults)B shows the average endorsed prevalence in comparison to the average implied prevalence.
+We see two tendencies consistent with the empirical data.
+Average endorsed prevalence is less sensitive to the kind of property than the average implied prevalence, and the asymmetry quantitatively decreases and disappears in a way analagous to the empirical data.
+However, the model predictions for the accidental generics does not predict the asymmetry reversal we observe in the empirical data.
+This may be a function of the predicted increased endorsements for the accidental generics, leading to a lower average endorsed prevalence.
+
+In sum, the model predicts that the average endorsed prevalence will be less sensitive to the property than the average implied prevalence and predicts that the asymmetry will disappear for certain properties.
+However, the model does a poor job at predicting the endorsement data for the generics about accidental properties. 
+This is a direct result of the prevalence priors for accidental generics, which skew the probability mass towards low prevalence levels, analagous to the *rare weak* priors in Figure\ \@ref(fig:asymmetrySimulations).
+This suggests something more is at play with the accidental property generics. 
+We assume in our simulations, for instance, that the prevalence communicated by the speaker model is the prevalence supplied to participants. 
+If, however, participants believe that the prevalence level told to them is unrealisitically high and would predict in the future that the prevalence would be lower (analagous to Ch. 4 Expt. 1), we would expect lower endorsements than the ones shown here.
+It is not our goal to explain the fine-grained details of the endorsement data, here, however, only that the average endorsed prevalence is relatively insensitive to the property. 
+We leave exploration of this *predictive prevalence* explanation for future work. 
+
+<!-- As can be gleaned from the figure, this is a result of the implied prevalence predicted to be *too high*.  -->
+<!-- This contrasts with the model predictions from Ch. 2, Expt. 1, where the predicted implied prevalence tracked the empirical implied prevalence to a high degree. -->
+<!-- This mismatch is a result of the single model trying to account for both endorsements and interpretations simultaneously, and the model making the wrong prediction for endorsements. -->
+<!-- and the implied prevalence data.  -->
+
+
+<!-- ### Extended analysis: Average endorsed prevalence -->
 
 <!-- 
   - [1.] do you get similar results by bootstrapping subjects and not going straight to ATC (property type level)?
@@ -591,15 +718,17 @@ In this study [as in @Cimpian2010's], *average truth conditions* is computed on 
     
 # Experiment 2: Property-specific asymmetries
 
-In this experiment, we measure *average truth conditions* for the larger and more diverse stimulus set used in Ch. 2, Expt. 2.
+In this experiment, we measure *average endorsed prevalence* for the larger and more diverse stimulus set (same as used in Ch. 2, Expt. 2).
+The goal is to estimate the variable in average endorsed prevalence for items we know have high variability in average implied prevalence.
 
 ## Method
 
 ### Participants
 
-We recruited X participants from MTurk. 
-This number was arrived at with the intention of getting approximately X ratings for each unique item in the experiment.
-The experiment took on average X minutes and participants were compensated \$K.
+We recruited 250 participants from MTurk. 
+This number was arrived at with the intention of getting approximately 50 ratings for each unique item in the experiment.
+The experiment took on average 4 minutes and participants were compensated \$0.75.
+The primary analysis, sample size, and exclusion criteria were preregistered: https://osf.io/wvuj2/register/5771ca429ad5a1020de2872e
 
 ### Materials
 
@@ -607,7 +736,7 @@ We used the stimulus set of 75 properties used in Ch. 2, Expt. 2.
 Items were generated by considering six different classes of properties: physical characteristics (e.g., *have brown spots*), psychological characteristics (e.g., *experience emotions*), dietary habits (e.g., *eat human food*), habitat (e.g., *live in zoos*), disease (e.g., *get cancer*, *carry malaria*), reproductive behavior (e.g., *have a menstrual cycle*), and other miscellaneous behaviors (e.g., *pound their chests to display dominance*, *perform in the circus*); online sources about strange animal behaviors were consulted in order to find the more obscure properties. 
 
 In addition, participants saw prevalence levels ranging from 10%, 30%, 50%, 70%, and 90%, as in @Cimpian2010 and Expt. 1 above.
-In order to avoid fatigue and/or habituation to the statistics of the task, unlike Expt. 1, the exact prevalence seen on an individual trial was sampled from a (discrete) uniform distribution centered at the prevalence level (10, 30, ..., 90) with a range of $\pm 5\%$.
+In order to avoid fatigue and/or habituation to the statistics of the task, unlike Expt. 1, the exact prevalence seen on an individual trial was sampled from a (discrete) uniform distribution centered at the prevalence level (10, 30, ..., 90) with a range of $\pm 5\%$ (e.g., participants might see prevalence levels of 12%, 28%, 54%, 71%, 87%, etc...)
 
 ### Procedure
 
@@ -618,16 +747,41 @@ On each trial, participants read: "Scientists discovered an animal called a *K*.
 They were then asked if the corresponding bare plural sentence "*Ks F*"  was true or false (e.g., "Javs have an exquisite sense of smell").
 Participants responded using radio buttons labeled "True" and "False", the ordering of which was randomized between-subjects.
 As in Ch. 2, Expt. 2B, novel animal category names were mostly taken from @Cimpian2010 and similar studies on generic language. 
-Each participant completed \red{N} trials, \red{M} at each prevalence level (10, 30, 50, 70, 90).
+Each participant completed 25 trials, 5 at each prevalence level (10, 30, 50, 70, 90).
 Each trial asked about a different property.
 
-After the generic interpretation trials, participants a memory check trial wherein they were shown ten properties and asked to click on those they had seen in the experiment.
-Following the memory check trials and depending on their ratings in the task, participants completed up to five explanation trials. 
+After the generic interpretation trials, participants completed a memory check trial wherein they were shown ten properties and asked to click on those they had seen in the experiment.
+The list was comprised of 5 properties they had seen in the experiment and 5 properties they had not seen; the unseen properties were semantically similar to a seen property (e.g., *have brown fur* [seen] vs. *have long legs* [unseen]; *are afraid of loud noises* [seen] vs. *are afraid of dogs* [unseen]).
+Following the memory check trials and depending on their ratings in the task, participants completed up to four explanation trials. 
 On an explanation trial, participants saw a rating they had given for a property they had either rated as (1) true at prevalence levels 10% or 30% or (2) false at prevalence levels 70% or 90%, and asked if they could explain why they gave the response that they gave. 
 (These data were used in an exploratory analysis.)
 If participants gave no such ratings, they did not complete any explanation trials. 
+The experiment can be viewed at http://stanford.edu/~mtessler/generics-asymmetry/experiments/endorsement-1.html.
 
 ### Results
+
+```{r asymmetry model results}
+load("cached_results/expt2_splithalf.RData") #df.end.1.atc.splithalf.r.summary
+load("cached_results/expt2_apriori_fit_summary.RData") # md.end1.atc.summary.apriori, md.end1.atc.summary
+model.cortest <- with(md.end1.atc.summary %>% filter(optimality == 5, semantics == "uncertain"), cor.test(MAP, mean_atc))
+```
+
+97 participants were excluded for failing to pass the memory check using the preregistered exlcusion criteria (at least 4 out of 5 hits and at least 4 out of 5 correct rejections) and 3 participants were additionally excluded for self-reporting a native language other than English, leaving n=150 for these analyses.^[
+  Because the exclusion criteria seem to be ill-calibrated to the difficulty of the memory check trials, we will also complete the analyses using participants who got 3/5 hits and 3/5 correct rejections, of which there are n=197 excluding the non-native English speakers.
+]
+
+Our primary analysis concerns comparing the prevalence implied by a novel generic sentence (measured in Ch. 2, Expt. 2) to the average prevalence at which a participant endorses the generic. 
+We use our computational model, which has been previously fit to the implied prevalence data (Ch. 2, Expt. 2) earlier to generate predictions for the average endorsement prevalence. 
+The computational model predictions are dependent on a softmax parameter, which should be fit to the data.
+However, we report *a priori* prediction quantities setting this parameter equal to 5, and note that the rank ordering of these predictions (as opposed to the exact quantitative values) is relatively stable across different parameter settings. 
+These exact, quantitative predictions were preregistered.
+
+Because of the mathematical properties of *average endorsed prevalence*, the expected variability across items is very small (all model predictions range between 0.52 and 0.73). 
+Therefore, to estimate the theoretical maximum explainable variance $\rho$ in the data set, we compute split-half correlations by repeating splitting the data set in half by participants, computing averaged endorsed prevalence for each item in each split-half, computing correlation between two halves of the data set, and using the Spearman-Brown prediction formula to estimate predicted reliability with full sample size. 
+$\rho =$ `r format(df.end.1.atc.splithalf.r.summary[[1, "mean_r"]], digits = 2)`(`r format(df.end.1.atc.splithalf.r.summary[[1, "lower_r"]], digits = 2)`, `r format(df.end.1.atc.splithalf.r.summary[[1, "upper_r"]], digits = 2)`), indicating there is a substantial amount of variability in this derived measured. 
+Our model's *a priori* model predictions for the average endorsed prevalence on a by-item basis showed a correlation with the data comparable to that of the explainable variance $r(`r model.cortest[["parameter"]][["df"]]`)$.
+The results were extremely comparable using for the more relaxed exlcusion criteria.
+
 
 # Discussion
 
