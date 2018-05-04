@@ -100,13 +100,13 @@ knitr::opts_chunk$set(echo=FALSE, warning=FALSE, cache=T, message=FALSE, sanitiz
 <!-- Generic statements (e.g., "Birds fly") convey generalizations about categories [@Carlson1977; @Carlson1995; @Leslie2008]. -->
 <!-- This kind of language has caught the attention of psychologists, linguists, and philosophers beacuse it is widely prevalent in everyday conversation and child-directed speech [@Gelman1998; @Gelman2008; @GelmanEtAl2004], while at the same time having formal properties that are difficult to characterize [@Carlson1995].  -->
 
-In Chapter 3, we saw how generic statements can be intuitively true under a wide range of statistical conditions. 
+In Chapter 3, we saw how generic statements can be judged as true under a wide range of statistical conditions. 
 "Birds fly" is true of most birds, but "Ducks lay eggs" is only true of adult, fertile, female ducks, which make up less than 50\% of the category.
 "Mosquitos carry malaria" is intuitively true despite less than 1\% of category actually having the property.
 Despite these variable truth conditions, it is thought that generic statements often carry the *implied prevalence* of a universal or near-universal quantifier [@Abelson1966; @Gelman2002; @Cimpian2010]. 
 For example, when both children and adults learn "Bears like to eat ants", they tend to think that *almost all* bears like to eat ants [@Gelman2002].
 
-There is a surprising d\\'{e}colage between truth judgments and interpretations of generic sentences: Interpretations are often strong while truth conditions are flexible. 
+There is a surprising decolage between truth judgments and interpretations of generic sentences: Interpretations are often strong while truth conditions are flexible. 
 @Cimpian2010 found that upon reading a novel generic sentence (e.g., "Glippets have yellow fur."), participants infer that the implied referent prevalence is high (e.g., almost all glippets have yellow fur).
 At the same time, when participants are confronted with evaluating the same statement based on weak statistical evidence (e.g., 30% of glippets have yellow fur), participants are still willing to endorse the statement.
 This results in an asymmetry: Generics are accepted for a wide range of prevalence levels but are interpreted as implying high prevalence.
@@ -593,12 +593,12 @@ rs.brm.endorse.prev.type.summary <- summary(rs.brm.endorse.prev.type)
 Figure\ \@ref(fig:figCbgResults)A show the proportion of endorsements at each level of prevalence for the four differet kinds  of properties.
 To estimate the effects, we ran a Bayesian bernoulli mixed-effects regression model with fixed effects of prevalence (centered and scaled), property type and their interaction and random effects of intercept and property type by-participants and intercept by-item.
 There is a clear effect of prevalence levels $\beta_{prevalence} =$ `r format_regression_effects(rs.brm.endorse.prev.type.summary, "stim_prevalence")`, and some evidence that generics with body part properties $\beta_{body} =$ `r format_regression_effects(rs.brm.endorse.prev.type.summary, "stim_typepart")` and those described with gradable adjectives $\beta_{gradable} =$ `r format_regression_effects(rs.brm.endorse.prev.type.summary, "stim_typevague")` are endorsed more than the accidental property bare plurals. 
-In addition, there is evidence for a small interaction between prevalence and property type for the body $\beta_{body \times prevalence} =$ `r format_regression_effects(rs.brm.endorse.prev.type.summary, "stim_prevalence:stim_typepart")` and gradable properties $\beta_{gradable \times prevalence} =$ `r format_regression_effects(rs.brm.endorse.prev.type.summary, "stim_prevalence:stim_typevague")` in comparison to the accidental properties: The slope appears flatter for the accidental bare plurals, owing to the fact they are endorsed less at high prevalence levels.
+In addition, there is evidence for an interaction between prevalence and property type for the body $\beta_{body \times prevalence} =$ `r format_regression_effects(rs.brm.endorse.prev.type.summary, "stim_prevalence:stim_typepart")` and gradable properties $\beta_{gradable \times prevalence} =$ `r format_regression_effects(rs.brm.endorse.prev.type.summary, "stim_prevalence:stim_typevague")` in comparison to the accidental properties: The slope appears flatter for the accidental bare plurals, owing to the fact they are endorsed less at high prevalence levels.
 These same effects were not credibly different from zero for the color properties ($\beta_{color} =$ `r format_regression_effects(rs.brm.endorse.prev.type.summary, "stim_typecolor")`; $\beta_{color \times prevalence} =$ `r format_regression_effects(rs.brm.endorse.prev.type.summary, "stim_prevalence:stim_typecolor")`).
 
 Figure\ \@ref(fig:figCbgResults)B shows the average endorsed prevalence, computed using the procedure by @Cimpian2010 and described in the previous section, in comparison to the average implied prevalence from the same items (Ch. 2 Expt 1b). 
-We see that any differences that may exist for truth judgments at the various prevalence levels disappears when the *average endorsed prevalence* is computed. 
-This signature, combined with the very property-sensitive *implied prevalence*, produces asymmetries to varying degrees. 
+We see that any differences that may exist for truth judgments at the various prevalence levels disappear when the *average endorsed prevalence* is computed. 
+This statisticla signature, combined with the highly property-sensitive *implied prevalence*, produces asymmetries to varying degrees. 
 
 We generate model predictions by using the endorsement model to predict the truth judgment data using the parameters fit to the interpretation data from Ch. 2 (Expt. 1). 
 That is, these predictions are not fit to the empirical truth judgment data, but generated *a priori* from the model. 
@@ -694,13 +694,13 @@ However, the model predictions for the accidental generics does not predict the 
 This may be a function of the predicted increased endorsements for the accidental generics, leading to a lower average endorsed prevalence.
 
 In sum, the model predicts that the average endorsed prevalence will be less sensitive to the property than the average implied prevalence and predicts that the asymmetry will disappear for certain properties.
-However, the model does a poor job at predicting the endorsement data for the generics about accidental properties. 
-This is a direct result of the prevalence priors for accidental generics, which skew the probability mass towards low prevalence levels, analagous to the *rare weak* priors in Figure\ \@ref(fig:asymmetrySimulations).
-This suggests something more is at play with the accidental property generics. 
-We assume in our simulations, for instance, that the prevalence communicated by the speaker model is the prevalence supplied to participants. 
-If, however, participants believe that the prevalence level told to them is unrealisitically high and would predict in the future that the prevalence would be lower (analagous to Ch. 4 Expt. 1), we would expect lower endorsements than the ones shown here.
-It is not our goal to explain the fine-grained details of the endorsement data, here, however, only that the average endorsed prevalence is relatively insensitive to the property. 
-We leave exploration of this *predictive prevalence* explanation for future work. 
+However, the model does a poor job at predicting the endorsement data at each prevalence level for the generics about accidental properties. 
+This is because the observed endorsement pattern is inconsistent with the implied prevalence data. 
+That is, the prevalence priors for accidental generics are skewed towards low prevalence levels, analagous to the *rare weak* priors in Figure\ \@ref(fig:asymmetrySimulations).
+Thus, the truth conditions ought to be more relaxed, analagous to a case like "Mosquitos carry malaria". 
+One possibility is that participants believe the *predictive prevalence* of the accidental features is lower than the prevalence stated in the prompt (e.g., 30% of lorches have broken legs today, but in the future, this number should be lower), analagous to the case of extrinsically acquired features we saw in Chapter 4 (Expt 1). 
+Trying to accomodate the fine-grained differences for the bare plurals about accidental properties (e.g., "Lorches have broken legs") would lead us too far astray, however.
+We have accomplished our primary goal: Showing that the average endorsed prevalence is much less sensitive to the property relative to the average implied prevalence.
 
 <!-- As can be gleaned from the figure, this is a result of the implied prevalence predicted to be *too high*.  -->
 <!-- This contrasts with the model predictions from Ch. 2, Expt. 1, where the predicted implied prevalence tracked the empirical implied prevalence to a high degree. -->
@@ -771,16 +771,22 @@ model.cortest <- with(md.end1.atc.summary %>% filter(optimality == 5, semantics 
 ]
 
 Our primary analysis concerns comparing the prevalence implied by a novel generic sentence (measured in Ch. 2, Expt. 2) to the average prevalence at which a participant endorses the generic. 
-We use our computational model, which has been previously fit to the implied prevalence data (Ch. 2, Expt. 2) earlier to generate predictions for the average endorsement prevalence. 
-The computational model predictions are dependent on a softmax parameter, which should be fit to the data.
-However, we report *a priori* prediction quantities setting this parameter equal to 5, and note that the rank ordering of these predictions (as opposed to the exact quantitative values) is relatively stable across different parameter settings. 
-These exact, quantitative predictions were preregistered.
+We have already seen that our computational model predicts well the variability in implied prevalence (Ch. 2, Expt. 2). 
+We use our computational model previously fit to the implied prevalence data earlier, then, to generate predictions for the average endorsement prevalence. 
+The computational model predictions are dependent on a softmax parameter.
+We report *a priori* prediction quantities setting this parameter equal to 5, and note that the rank ordering of these predictions (as opposed to the exact quantitative values) is relatively stable across different parameter settings. 
+These exact quantitative predictions were preregistered.
 
-Because of the mathematical properties of *average endorsed prevalence*, the expected variability across items is very small (all model predictions range between 0.52 and 0.73). 
-Therefore, to estimate the theoretical maximum explainable variance $\rho$ in the data set, we compute split-half correlations by repeating splitting the data set in half by participants, computing averaged endorsed prevalence for each item in each split-half, computing correlation between two halves of the data set, and using the Spearman-Brown prediction formula to estimate predicted reliability with full sample size. 
-$\rho =$ `r format(df.end.1.atc.splithalf.r.summary[[1, "mean_r"]], digits = 2)`(`r format(df.end.1.atc.splithalf.r.summary[[1, "lower_r"]], digits = 2)`, `r format(df.end.1.atc.splithalf.r.summary[[1, "upper_r"]], digits = 2)`), indicating there is a substantial amount of variability in this derived measured. 
+Because of the mathematical properties of *average endorsed prevalence*, the expected variability across items is very small: All model predictions range between 0.52 and 0.73 (total range = 0.21). 
+Note that the same items have average implied prevalence ratings that range between 0.37 and 0.95 (total range 0.58).
+Therefore, it is likely that the averaged endorsed prevalence is a much less reliable measurement. 
+To estimate the theoretical maximum explainable variance $\rho$ in the data set, we compute split-half correlations by repeating splitting the data set in half by participants, computing averaged endorsed prevalence for each item in each split-half, computing correlation between two halves of the data set, and using the Spearman-Brown prediction formula to estimate predicted reliability with full sample size. 
+This estimate of theoretical maximum correlation is itself highly variable ($\rho =$ `r format(df.end.1.atc.splithalf.r.summary[[1, "mean_r"]], digits = 2)`[`r format(df.end.1.atc.splithalf.r.summary[[1, "lower_r"]], digits = 2)`, `r format(df.end.1.atc.splithalf.r.summary[[1, "upper_r"]], digits = 2)`]), indicating variability in this derived measured is not highly reliable.
+
 Our model's *a priori* model predictions for the average endorsed prevalence on a by-item basis showed a correlation with the data comparable to that of the explainable variance $r(`r model.cortest[["parameter"]][["df"]]`)$.
-The results were extremely comparable using for the more relaxed exlcusion criteria.
+The results were extremely comparable using for the more relaxed exclusion criteria.
+Thus the average endorsed prevalence measure does not exhibit much variance (both in the model and in the data) and the variance it does exhibit is not highly reliable. 
+
 
 
 # Discussion
