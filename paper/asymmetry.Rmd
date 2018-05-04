@@ -106,24 +106,60 @@ In Chapter 3, we saw how generic statements can be judged as true under a wide r
 Despite these variable truth conditions, it is thought that generic statements often carry the *implied prevalence* of a universal or near-universal quantifier [@Abelson1966; @Gelman2002; @Cimpian2010]. 
 For example, when both children and adults learn "Bears like to eat ants", they tend to think that *almost all* bears like to eat ants [@Gelman2002].
 
-There is a surprising decolage between truth judgments and interpretations of generic sentences: Interpretations are often strong while truth conditions are flexible. 
+These two intuitions---generics have flexible truth conditions and are interpreted strongly---leads to a potential asymmetry. 
 @Cimpian2010 found that upon reading a novel generic sentence (e.g., "Glippets have yellow fur."), participants infer that the implied referent prevalence is high (e.g., almost all glippets have yellow fur).
-At the same time, when participants are confronted with evaluating the same statement based on weak statistical evidence (e.g., 30% of glippets have yellow fur), participants are still willing to endorse the statement.
-This results in an asymmetry: Generics are accepted for a wide range of prevalence levels but are interpreted as implying high prevalence.
+At the same time, when participants are confronted with evaluating the same statement based on weak statistical evidence (e.g., 30% of glippets have yellow fur), some participants are still willing to endorse the statement.
+This is the essence of the asymmetry.
+The asymmetry is worrisome: Generics are a primary vehicle for conveying stereotypes [@GelmanEtAl2004]. 
+The decolage between endorsements and interpretations means that listeners might draw a too strong generalization than the speaker intended.
 
-Of course, generics need not imply high prevalence.
-We saw in Chapter 2 that statements like "Feps live in zoos" are interpreted as applying to relatively few feps, while "Feps eats insects" is taken to apply *almost all* feps. 
-The sensitivity of implied prevalence, we showed, was a result of diverse prior knowledge about properties interacting with the uncertain semantics of generics. 
-Accordingly, @Cimpian2010 (Expt. 3) found a significant reduction in the asymmetry for generics about accidental properties (e.g., "Glippets have wet fur."), mostly driven by those statements carrying substantially weaker interpretations. 
-Endorsements for generics are similarly sensitive to the property (e.g., "Birds lay eggs" vs. "Birds are female"), but the results of @Cimpian2010 suggest the sensitivity of endorsement is less than that of interpretations.
+The asymmetry is puzzling from a theoretical persepective as well.
+We know from Chapters 2 & 3 that both endorsements and interpretations display sensitivity to the property in precise quantitative ways. 
+But an asymmetry would indicate that the context-sensitivity of endorsements is different from that of interpretations.
 
-When and how does the asymmetry between truth conditions and implied prevalence manifest?
-<!-- \red{[check cimpian's discussion section]} PERHAPS ADDRESS LATER WHAT CIMPIAN SAYS, because it's not directly the point (his ideas are tooo vague) -->
-Here, we draw on the same computational framework to address this question. 
-First, we describe how endorsements and implied prevalence are compared and show through simulation various conditions under which the asymmetry appears and when it is predicted to disappear or even reverse.
-Then, we replicate the original asymmetry findings of @Cimpian2010 while expanding the stimulus set to reveal even more variability in the asymmetry.
-We then extend these findings to a larger-scale study using a more diverse stimulus set.
-In addition to revealing the quantitative intracacies of the asymmetry, our very same model is able to account for both truth conditions and implied prevalence simultaneously. 
+Here, we investigate the source of the asymmetry that was reported by @Cimpian2010, discovering that is a statistical artifact that results from the transformations employed to compare the two data sources (truth conditions and implied prevalence).
+We show that the reported asymmetry is driven primarily by differences in implied prevalence, which we already explored in Chapter 2. 
+The endorsed prevalence (a composite measure used to compare to implied prevalence) shows substantially less variability across items, and thus, also reduced test-retest reliability. 
+Even so, our endorsement model is still able to explain a significant amount of variance in the average endorsed prevalence.
+We conclude by discussing other mechanisms of *evidence exaggeration*.
+
+
+
+<!-- When and how does the asymmetry between truth conditions and implied prevalence manifest? -->
+<!-- <!-- \red{[check cimpian's discussion section]} PERHAPS ADDRESS LATER WHAT CIMPIAN SAYS, because it's not directly the point (his ideas are tooo vague) --> -->
+<!-- Here, we draw on the same computational framework to address this question.  -->
+<!-- First, we describe how endorsements and implied prevalence are compared and show through simulation various conditions under which the asymmetry appears and when it is predicted to disappear or even reverse. -->
+<!-- Then, we replicate the original asymmetry findings of @Cimpian2010 while expanding the stimulus set to reveal even more variability in the asymmetry. -->
+<!-- We then extend these findings to a larger-scale study using a more diverse stimulus set. -->
+<!-- In addition to revealing the quantitative intracacies of the asymmetry, our very same model is able to account for both truth conditions and implied prevalence simultaneously.  -->
+
+
+
+<!-- What is the source of the asymmetry?  -->
+<!-- @Cimpian2010 (Expt. 3) found a significant reduction in the asymmetry for generics about accidental properties (e.g., "Glippets have wet fur."), suggesting that the asymmetry is not a purely semantic phenomenon (i.e., not arising just out of the meaning of generics).  -->
+
+<!-- our knowledge of properties is at least partially responsible for the asymmetry. -->
+
+<!-- But generic endorsements are also sensitive to the properties.  -->
+
+
+<!-- mostly driven by those statements carrying substantially weaker interpretations.  -->
+
+<!-- Of course, generics need not imply high prevalence. -->
+<!-- We saw in Chapter 2 that statements like "Feps live in zoos" are interpreted by adults as applying to relatively few feps, while "Feps eats insects" is taken to apply *almost all* feps.  -->
+<!-- Accordingly,  -->
+<!-- Endorsements for generics are similarly sensitive to the property (e.g., "Birds lay eggs" vs. "Birds are female"), but the results of @Cimpian2010 suggest the sensitivity of endorsement is *less* than that of interpretations. -->
+
+
+
+<!-- Is the source of the asymmetry a semantic one?  -->
+<!-- That is, does the uncertain threshold meaning for generics produce an asymmetry between endorsements and interpretations?  -->
+<!-- Or, like other phenomena in generic language, is the result of background knowledge about properties? -->
+
+<!-- When we examine our intuition about the asymmetry, it seems to come from different example sentences: "Mosquitos carry malaria" is endorsed at low prevalence vs. "Dogs bark" implies high prevalence.  -->
+<!-- The sensitivity of implied prevalence, we showed, was a result of diverse prior knowledge about properties interacting with the uncertain semantics of generics.  -->
+
+
 
 
 <!-- Upon hearing "Feps eat insects", listeners come to think *almost all* feps eat insects; the possibility that only 10% of them eat insects does not immediately come to mind.  -->
