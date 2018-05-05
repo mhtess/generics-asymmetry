@@ -1,0 +1,732 @@
+---
+title: "Analysis for endorsement tasks"
+output: html_notebook
+---
+
+```{r libraries}
+library(tidyverse)
+library(tidyboot)
+library(ggpirate)
+library(knitr)
+library(viridis)
+library(parallel)
+
+readData = function(proj){
+  read_csv(
+    paste("../data/",proj,"/",
+          proj,"-trials.csv", sep = "")
+    )
+}
+
+readCatchInfo = function(proj){
+  read_csv(
+    paste("../data/",proj,"/",
+          proj,"-catch_trials.csv", sep = "")
+    )
+}
+
+readSubjInfo = function(proj){
+  read_csv(
+    paste("../data/",proj,"/",
+          proj,"-subject_information.csv", sep = "")
+    )
+}
+```
+
+## Pilot data
+```{r pilot load data}
+df.end.1.pilot <- readData("endorsement-1-pilot")
+df.end.1.pilot.catch <- readCatchInfo("endorsement-1-pilot")
+df.end.1.pilot.subj <- readSubjInfo("endorsement-1-pilot")
+```
+
+### Catch trial and language info
+
+```{r pilot catch}
+df.end.1.pilot.catch.summary <- df.end.1.pilot.catch %>%
+  group_by(workerid) %>%
+  summarize(hits = sum((tested_on == 1)*correct),
+            crs = sum((tested_on == 0)*correct),
+            pass = (hits >= 4) * (crs>=4)
+            #pass = (hits + crs >= 8)
+            )
+  
+  
+df.end.1.pilot.catch.summary %>% count(pass)
+```
+
+```{r pilot language}
+df.end.1.pilot.subj <- df.end.1.pilot.subj %>%
+  mutate(english_native = grepl("eng", tolower(language)))
+
+df.end.1.pilot.subj %>% count(english_native)
+
+df.end.1.pilot.subj %>%
+  filter(!english_native) %>%
+  select(workerid, language) %>%
+  kable(.)
+```
+
+```{r pilot exclude participants}
+df.end.1.pilot <- left_join(
+  df.end.1.pilot,
+  left_join(
+    df.end.1.pilot.subj %>% select(workerid, english_native),
+    df.end.1.pilot.catch.summary %>% select(workerid, pass)
+  )
+)
+
+df.end.1.pilot.filtered <- df.end.1.pilot %>%
+  filter(english_native * pass == 1)
+
+# number of subjects who are retained
+
+length(unique(df.end.1.pilot.filtered$workerid))
+length(unique(df.end.1.pilot$workerid)) # out of
+```
+
+### Endorsement results
+
+```{r}
+df.end.1.pilot.filtered %>%
+  group_by(property, prevalence_level) %>%
+  count() %>%
+  ggplot(., aes( x = n))+
+  geom_histogram(fill = 'white', color = 'black',
+                 bins = 20)
+```
+
+```{r}
+with(
+  df.end.1.pilot.filtered,table(property, prevalence_level))
+```
+
+
+```{r pilot collapse across items}
+df.end.1.pilot.filtered %>%
+  group_by(prevalence_level) %>%
+  tidyboot_mean(column = response)
+```
+
+```{r pilot collapse across prevalence}
+df.end.1.pilot.filtered %>%
+  group_by(property) %>%
+  tidyboot_mean(column = response) %>% View()
+```
+
+```{r pilot item wise, fig.height = 4, fig.width=4}
+df.end.1.pilot.filtered.property <- df.end.1.pilot.filtered %>%
+  group_by(property, prevalence_level) %>%
+  tidyboot_mean(column = response)
+
+df.end.1.pilot.filtered.property %>%
+  ggplot(., aes(x = property, y = mean, 
+                ymin = ci_lower, ymax = ci_upper))+
+  geom_col(color = 'black', fill = 'white',
+           position = position_dodge())+
+  geom_errorbar(position = position_dodge(), width = 0.3)+
+  facet_wrap(~prevalence_level, scales = 'free')+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
+```
+
+## Endorsement 1 (full data collection)
+
+```{r load data}
+df.end.1 <- readData("endorsement-1")
+df.end.1.catch <- readCatchInfo("endorsement-1")
+df.end.1.subj <- readSubjInfo("endorsement-1")
+```
+
+### Catch trial and language info
+
+```{r catch}
+df.end.1.catch.summary <- df.end.1.catch %>%
+  group_by(workerid) %>%
+  summarize(hits = sum((tested_on == 1)*correct),
+            crs = sum((tested_on == 0)*correct),
+            pass = (hits >= 3) * (crs>=3)
+            #pass = (hits + crs >= 8)
+            )
+  
+  
+df.end.1.catch.summary %>% count(pass)
+```
+
+
+```{r time}
+df.end.1 %>%
+  group_by(workerid) %>%
+  summarize(total_time = sum(rt / 1000 / 60)) %>% ungroup() %>%
+  summarize( mean(total_time) ) 
+```
+
+```{r language}
+df.end.1.subj <- df.end.1.subj %>%
+  mutate(english_native = (grepl("eng", tolower(language)) | (language == "en") | (language == "E nglish")))
+
+df.end.1.subj %>% count(english_native)
+
+df.end.1.subj %>%
+  filter(!english_native) %>%
+  select(workerid, language) %>%
+  kable(.)
+
+df.end.1.subj %>% 
+  select(comments, problems) %>%
+  kable(.)
+
+df.end.1.subj %>% 
+  select(enjoyment) %>%
+  table(.)
+```
+
+```{r exclude participants}
+df.end.1.filtered <- left_join(
+  df.end.1,
+  left_join(
+    df.end.1.subj %>% select(workerid, english_native),
+    df.end.1.catch.summary %>% select(workerid, pass)
+  )
+) %>%
+  filter(english_native * pass == 1) %>%
+  mutate(property = gsub("&quotechar", "", property))
+#df.end.1.filtered <- df.end.1
+# number of subjects who are retained
+
+length(unique(df.end.1.filtered$workerid))
+length(unique(df.end.1$workerid)) # out of
+```
+
+### Endorsement results
+
+```{r number of responses per item}
+df.end.1.filtered.n_responses_per_item <- df.end.1.filtered %>%
+  group_by(property, prevalence_level) %>%
+  count() 
+
+df.end.1.filtered %>%
+  group_by(property, prevalence_level) %>%
+  count() %>%
+  ggplot(., aes( x = n))+
+  geom_histogram(fill = 'white', color = 'black',
+                 bins = 20)
+```
+
+
+```{r collapse across items}
+df.end.1.filtered %>%
+  group_by(prevalence_level) %>%
+  tidyboot_mean(column = response)
+```
+
+```{r collapse across prevalence}
+df.end.1.filtered.items <- df.end.1.filtered %>%
+  group_by(property) %>%
+  tidyboot_mean(column = response)
+
+property.order <- with(df.end.1.filtered.items,
+                       property[order(mean)])
+df.end.1.filtered.items %>%
+  ungroup() %>%
+  mutate(property = factor(property, levels = property.order)) %>%
+  ggplot(., aes(x = property, y = mean, 
+                ymin = ci_lower, ymax = ci_upper,
+                fill = property))+
+  geom_col(color = 'black',
+           position = position_dodge())+
+  geom_errorbar(position = position_dodge(), width = 0.3)+
+  scale_fill_viridis(discrete = T)+
+  guides(fill = F)+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
+```
+
+```{r prop prev wise, fig.height = 10, fig.width=6}
+df.end.1.filtered.property <- df.end.1.filtered %>%
+  group_by(property, prevalence_level) %>%
+  tidyboot_mean(column = response)
+
+df.end.1.filtered.property %>%
+    ungroup() %>%
+  mutate(property = factor(property, levels = property.order)) %>%
+  ggplot(., aes(x = property, y = mean, 
+                ymin = ci_lower, ymax = ci_upper,
+                fill = property))+
+  geom_col(color = 'black', 
+           position = position_dodge())+
+  scale_fill_viridis(discrete = T)+
+  guides(fill = F)+
+  scale_y_continuous(limits = c(0, 1))+
+  geom_errorbar(position = position_dodge(), width = 0.3)+
+  facet_wrap(~prevalence_level, scales = 'free', ncol = 1)+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
+
+ggsave("figs/endorsement-byPrevProperty-facetPrev-filtered.pdf", width = 12, height = 20)
+```
+
+
+```{r}
+df.end.1.filtered.property %>%
+  select(property, prevalence_level, mean) %>%
+  spread(prevalence_level, mean) %>%
+  ungroup() %>%
+  select(-property) %>%
+  cor(.)
+```
+
+
+```{r prop prev wise 2, fig.height = 10, fig.width=6}
+df.end.1.filtered.property %>%
+    ungroup() %>%
+  mutate(property = factor(property, levels = property.order)) %>%
+  ggplot(., aes(x = prevalence_level, y = mean, 
+                ymin = ci_lower, ymax = ci_upper))+
+  geom_point()+geom_line()+
+  # scale_fill_viridis(discrete = T)+
+  # guides(fill = F)+
+  geom_errorbar(position = position_dodge(), width = 0.3)+
+  facet_wrap(~property)+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
+```
+
+```{r average truth conditions}
+bootstrap_atc.end.1 <- function(i){
+  df.end.1.filtered %>%
+    filter(trial_type == "truth_conditions") %>%
+    # mutate(type_prev_response = paste(property, "_", 
+    #                                   prevalence_level, "_", 
+    #                                   response, sep="")) %>%
+    # select(workerid, trial_num, type_prev_response) %>%
+    select(workerid, property, prevalence_level, response) %>%
+    group_by(property, prevalence_level) %>%
+    #spread(trial_num, type_prev_response) %>%
+    sample_n(35, replace = T) %>%
+    # gather(trial_num, val, -workerid) %>%
+    # separate(val, into = c("property", "prevalence", "response"),
+    #          sep = "_") %>%
+    # mutate(prevalence = as.numeric(prevalence),
+    #        response = as.numeric(response)) %>%
+    # group_by(property, prevalence) %>%
+    # group_by(property, prevalence_level) %>%
+    # summarize(prop_endorse = mean(response)) %>%
+    group_by(property, prevalence_level) %>%
+    summarize(prop_endorse = sum(response) / n()) %>%
+    ungroup() %>% 
+    #group_by(stim_type) %>%
+    group_by(property) %>%
+    mutate(endorse_prob = prop_endorse/ sum(prop_endorse)) %>%
+    summarize(atc = sum(endorse_prob * prevalence_level),
+              i = i)
+}
+
+df.end.1.atc.bs <- bind_rows(lapply(1:1000, bootstrap_atc.end.1))
+
+```
+
+
+```{r}
+df.end.1.atc.bs.summary <- df.end.1.atc.bs %>%
+  group_by(property) %>%
+  summarize(lower_atc = quantile(atc, 0.025),
+            mean_atc = mean(atc),
+            upper_atc = quantile(atc, 0.975))
+
+df.end.1.atc.bs.summary %>%
+    ungroup() %>%
+  mutate(property = factor(property, 
+                           levels = property[with(df.end.1.atc.bs.summary, order(mean_atc))])) %>%
+  ggplot(., aes(x = property, y = mean_atc, 
+                ymin = lower_atc, ymax = upper_atc,
+                color = property))+
+  geom_col(color = 'black', 
+           position = position_dodge())+
+  scale_color_viridis(discrete = T)+
+  guides(fill = F)+
+  geom_linerange(position = position_dodge(), size = 2)+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))+
+  scale_y_continuous(limits = c(50, 70))+
+  guides(color = F)
+```
+
+
+```{r mean ATC vs total endorsements}
+left_join(df.end.1.atc.bs.summary, df.end.1.filtered.items) %>%
+  ggplot(., aes( y = mean, ymin = ci_lower, ymax = ci_upper,
+                 xmin = lower_atc, xmax = upper_atc, 
+                 x = mean_atc))+
+  geom_point()+
+  geom_errorbar()+
+  geom_errorbarh()
+```
+
+```{r fig.height = 4, fig.width = 5}
+md.atc.summary <- left_join(
+  m.atc.summary %>% filter(property %in% unique(df.end.1.atc.bs.summary$property)),
+  df.end.1.atc.bs.summary
+)
+
+md.atc.summary %>%
+  filter(semantics == "uncertain") %>%
+  ggplot(., aes( y = MAP, ymin = cred_lower, ymax = cred_upper,
+                 xmin = lower_atc, xmax = upper_atc, 
+                 x = mean_atc))+
+  geom_errorbar(alpha = 0.3)+
+  geom_errorbarh(alpha = 0.3)+
+  geom_point()+
+  coord_fixed(ratio = 100)+
+  geom_abline(intercept = 0, slope = 0.01, lty = 3, alpha = 0.3)+
+  facet_wrap(~semantics + optimality)
+```
+
+```{r}
+md.atc.summary %>%
+  group_by(semantics, optimality) %>%
+  summarize(r = cor(MAP, mean_atc), n = n())
+
+with(md.atc.summary, cor.test(MAP, mean_atc))
+```
+
+```{r fig.height = 6, fig.width = 5}
+md.end.property.prevalence <- left_join(
+  m.samp.summary %>%
+    filter(property %in% unique(df.end.1.filtered.property$property)) %>%
+  mutate(prevalence_level = floor(prevalence*10) * 10),
+  df.end.1.filtered.property
+)
+
+md.end.property.prevalence %>%
+  ggplot(., aes( x = MAP, xmin = cred_lower, xmax = cred_upper,
+                 ymin = ci_lower, ymax = ci_upper, 
+                 y = mean))+
+  geom_errorbar(alpha = 0.3)+
+  geom_errorbarh(alpha = 0.3)+
+  geom_point()+
+  #coord_fixed(ratio = 100)+
+  geom_abline(intercept = 0, slope = 1, lty = 3, alpha = 0.3)+
+  facet_wrap(~semantics + optimality)
+```
+
+```{r}
+md.end.property.prevalence %>%
+  group_by(semantics, optimality, prevalence_level) %>%
+  summarize(r = cor(mean, MAP),
+            mse = mean((mean-MAP)^2)) %>% View()
+
+```
+
+
+
+# Split half correlation
+
+```{r split half}
+
+workerids <- unique(df.end.1.filtered$workerid)
+n.half <- round(length(workerids) / 2)
+
+df.end.1.filtered.truth_conds <- df.end.1.filtered %>%
+    filter(trial_type == "truth_conditions") 
+
+
+split_half.bootstrap_atc.end.1 <- function(i){
+  
+  first.half <- sample(workerids, size = n.half, replace = F)
+  
+  df.end.1.filtered.truth_conds.splithalf <- df.end.1.filtered.truth_conds %>%
+    select(workerid, property, prevalence_level, response) %>%
+    #group_by(property, prevalence_level) %>%
+    #spread(trial_num, type_prev_response) %>%
+    #sample_n(35, replace = T) %>%
+    mutate(half = ifelse(workerid %in% first.half, "half1", "half2")) %>%
+    group_by(half, property, prevalence_level) %>%
+    summarize(prop_endorse = sum(response) / n()) %>%
+    ungroup() %>% 
+    group_by(half, property) %>%
+    mutate(endorse_prob = prop_endorse/ sum(prop_endorse)) %>%
+    summarize(atc = sum(endorse_prob * prevalence_level)) %>%
+    spread(half, atc)
+  
+  r = with(df.end.1.filtered.truth_conds.splithalf, cor(half1, half2))
+  2*r / (1 + r)
+  
+}
+
+df.end.1.atc.splithalf.r <- lapply(1:1000, split_half.bootstrap_atc.end.1)
+
+```
+
+
+```{r}
+df.end.1.atc.splithalf.r.summary.n196 <- data.frame(r = unlist(df.end.1.atc.splithalf.r))  %>%
+  summarize(lower_r = quantile(r, 0.025),
+            mean_r = mean(r),
+            upper_r = quantile(r, 0.975))
+
+save(df.end.1.atc.splithalf.r.summary, 
+     file = "../paper/cached_results/expt2_splithalf.RData")
+```
+
+```{r split half by prev}
+
+workerids <- unique(df.end.1.filtered$workerid)
+n.half <- round(length(workerids) / 2)
+
+df.end.1.filtered.truth_conds <- df.end.1.filtered %>%
+    filter(trial_type == "truth_conditions") 
+
+
+split_half.bootstrap_atc.end.prev <- function(i){
+  
+  first.half <- sample(workerids, size = n.half, replace = F)
+  
+  df.end.1.filtered.truth_conds.splithalf <- df.end.1.filtered.truth_conds %>%
+    select(workerid, property, prevalence_level, response) %>%
+    #group_by(property, prevalence_level) %>%
+    #spread(trial_num, type_prev_response) %>%
+    #sample_n(35, replace = T) %>%
+    mutate(half = ifelse(workerid %in% first.half, "half1", "half2")) %>%
+    group_by(half, property, prevalence_level) %>%
+    summarize(prop_endorse = sum(response) / n()) %>%
+    spread(half, prop_endorse)
+  
+  df.end.1.filtered.truth_conds.splithalf %>%
+    group_by(prevalence_level) %>%
+    summarize( r = cor(half1, half2),
+               proph =   2*r / (1 + r))
+}
+
+df.end.1.prev.splithalf.r <- bind_rows(lapply(1:1000, split_half.bootstrap_atc.end.prev))
+
+```
+
+
+```{r}
+df.end.1.prev.splithalf.r %>%
+  group_by(prevalence_level) %>%
+  summarize(lower_r = quantile(proph, 0.025),
+            mean_r = mean(proph),
+            upper_r = quantile(proph, 0.975))
+```
+
+
+## comparison to implied prevalence data
+
+```{r}
+load("~/Documents/research/generic-interpretation/paper/cached_results/genInt_interpretation_modelData.RData")
+
+
+df.end.1.atc.bs.impPrev <- left_join(
+  df.end.1.atc.bs.summary %>%
+    ungroup() %>%
+    mutate(property = gsub("&quotechar", "", property)),
+  md.impprev %>%
+    ungroup() %>%
+    distinct(property, n, mean, ci_lower, ci_upper)
+) 
+
+df.end.1.atc.bs.impPrev%>%
+  ggplot(., aes( y = mean_atc, ymin = lower_atc, ymax = upper_atc,
+                 xmin = ci_lower, xmax = ci_upper, 
+                 x = mean))+
+  geom_errorbar(alpha = 0.3)+
+  geom_errorbarh(alpha = 0.3)+
+  geom_point()+
+  #coord_fixed(ratio = 100)+
+  geom_abline(intercept = 0, slope = 1, lty = 3, alpha = 0.3)
+
+
+with(df.end.1.atc.bs.impPrev, cor.test(mean, mean_atc))
+
+df.end.1.atc.bs.summary
+```
+
+## load prior data for need probabilities
+
+```{r load prevalence prior data}
+df.prior.3.filtered <- read_csv("../../generic-interpretation/data/prior/prior-3/prior-3-filtered-n175.csv")
+
+df.prior.prevalence.3 <- df.prior.3.filtered %>%
+  filter(trial_type == "prevalence_elicitation", !(is.na(response))) %>%
+  mutate(response = as.numeric(response),
+         property = gsub("&quotechar", "", property))
+```
+
+```{r bootstrap bin priors}
+df.prior.prevalence.3.wide <- df.prior.prevalence.3 %>%
+    select(workerid, property, index, response) %>%
+    spread(index, response) 
+
+
+lower_bins <-seq(0, 0.95, 0.05)
+upper_bins <- seq(0.05, 1, 0.05)
+mid_bins <- (upper_bins - lower_bins)/2 + lower_bins
+
+round_to_bin <- function(x){
+  index <- if (x==0){ 1 } else if (x ==1){ length(mid_bins)} else{
+    x <= upper_bins & x > lower_bins
+  }
+  #if (sum(index) > 1) { print (x) }
+  return (mid_bins[index])
+}
+
+
+bootstrapPriors <- function(i){
+  
+  df.prior.3.filtered.i <- df.prior.prevalence.3.wide %>%
+    group_by(property) %>%
+    sample_n(28, replace = TRUE) %>%
+    gather(category, response, -workerid, -property) %>%
+    rowwise() %>%
+    mutate(binned_response = round_to_bin(response)) %>%
+    group_by(property, binned_response) %>%
+    count() %>%
+    ungroup() %>%
+    spread(binned_response, n)
+
+  df.prior.3.filtered.i[is.na(df.prior.3.filtered.i)] <- 0
+
+  df.prior.3.filtered.i %>%
+    gather(state, n, -property) %>%
+    group_by(property) %>%
+    mutate(prop = (n+1) / sum(n + 1),
+         prop = round(prop, 5),
+         i = i)
+}
+
+no_cores <- detectCores() - 1
+cl <- makeCluster(no_cores, type="FORK")
+start_time <- Sys.time()
+
+df.prior.3.filtered.bs <- bind_rows(
+  parLapply(cl, 1:1000, bootstrapPriors)
+)
+
+end_time <- Sys.time()
+print(end_time - start_time) 
+stopCluster(cl)
+```
+
+```{r compute endorsed prev using need probabilities}
+df.prior.3.filtered.bs.summary <- df.prior.3.filtered.bs %>%
+  mutate(state = as.numeric(state)) %>%
+  group_by(property, state) %>%
+  summarize( lower = quantile(prop, 0.025),
+             mean = mean(prop),
+             upper = quantile(prop, 0.975)) 
+
+
+#endorsement.properties <- gsub("&quotechar", "", unique(df.end.1.filtered.property$property))
+endorsement.properties <-  unique(df.end.1.filtered.property$property)
+
+  
+
+df.prior.3.filtered.needProbs <- df.prior.3.filtered.bs.summary %>%
+  select(-lower, -upper) %>%
+  spread(state, mean) %>%
+  mutate(`10` = (`0.075`+ `0.125`)/2,
+         `30` = (`0.275` + `0.325`)/2,
+         `50` = (`0.475` + `0.525`)/2,
+         `70` = (`0.675` + `0.725`)/2,
+         `90` = (`0.875` + `0.925`)/2
+         ) %>%
+  select(`10`, `30`,`50`, `70`, `90`) %>%
+  gather(prevalence_level, need_probability, -property) %>%
+  mutate(prevalence_level = as.numeric(prevalence_level)) %>%
+  group_by(property) %>%
+  mutate(normalized_need_prob = need_probability / sum(need_probability))
+
+
+df.end.1.aep.rdy <- left_join(df.end.1.filtered.property %>%
+  filter(property %in% endorsement.properties),
+  df.prior.3.filtered.needProbs) %>%
+  mutate(posteriorProb_unnormalized = mean * normalized_need_prob) %>%
+  group_by(property) %>%
+  mutate(needPosterior_normalized = posteriorProb_unnormalized / sum(posteriorProb_unnormalized),
+         uniformPosterior_normalized = mean / sum(mean)) %>%
+  select(-n, -empirical_stat, -ci_lower, -ci_upper, -need_probability)
+
+
+df.end.1.aep <- df.end.1.aep.rdy %>%
+  group_by(property) %>%
+  summarize(need_endorsed_prevalence = sum(needPosterior_normalized*prevalence_level),
+            uniform_endorsed_prevalence = sum(uniformPosterior_normalized*prevalence_level))
+```
+
+
+```{r compaire aep with aip}
+df.end.1.aep.aip <- left_join(
+  df.end.1.aep,
+    md.impprev %>%
+      ungroup() %>%
+      distinct(property, n, mean, ci_lower, ci_upper)
+) 
+
+df.end.1.aep.aip %>%
+    ggplot(., aes( y = mean, ymin = ci_lower, ymax = ci_upper,
+                 x = need_endorsed_prevalence))+
+  geom_errorbar(alpha = 0.3)+
+  #geom_errorbarh(alpha = 0.3)+
+  geom_point()+
+  #coord_fixed(ratio = 100)+
+  geom_abline(intercept = 0, slope = 1, lty = 3, alpha = 0.3)
+
+```
+
+```{r compaire aep with model prediction}
+# model prediction computed in asymmetry-models.Rmd (should port over here)
+
+m.aep <- left_join(m.samp.summary %>%
+    mutate(prevalence_level = round(as.numeric(prevalence)*10) * 10),
+  df.prior.3.filtered.needProbs) %>%
+  mutate(needPosterior_endorsement = MAP*need_probability) %>%
+  group_by(property) %>%
+  mutate(needPosterior_normalized = needPosterior_endorsement / sum(needPosterior_endorsement)) %>%
+  group_by(property) %>%
+  summarize(model_aep = sum(prevalence_level * needPosterior_normalized))
+
+left_join(
+  df.end.1.aep, m.aep
+) %>%
+  ggplot(., aes( y = need_endorsed_prevalence,
+                 x = model_aep))+
+  #geom_errorbar(alpha = 0.3)+
+  #geom_errorbarh(alpha = 0.3)+
+  geom_point()+
+  #coord_fixed(ratio = 100)+
+  geom_abline(intercept = 0, slope = 1, lty = 3, alpha = 0.3)
+```
+
+```{r alternative models}
+# prior expectation only (i.e., uniform endorsement model)
+
+
+left_join(
+  df.end.1.aep, df.prior.3.filtered.needProbs %>%
+  group_by(property) %>%
+  summarize(uniformLikelihood_aep = sum(prevalence_level*normalized_need_prob))
+) %>%
+  ggplot(., aes( y = need_endorsed_prevalence,
+                 x = uniformLikelihood_aep))+
+  #geom_errorbar(alpha = 0.3)+
+  #geom_errorbarh(alpha = 0.3)+
+  geom_point()+
+  #coord_fixed(ratio = 100)+
+  geom_abline(intercept = 0, slope = 1, lty = 3, alpha = 0.3)
+
+# prevalence endorsement model
+left_join(
+  df.end.1.aep, df.prior.3.filtered.needProbs %>%
+  mutate(prev_posterior  = prevalence_level * normalized_need_prob) %>%
+  group_by(property) %>%
+  mutate(normalized_prev_posterior  = prev_posterior /sum(prev_posterior)) %>%
+  summarize(prevLikelihood_aep = sum(prevalence_level*normalized_prev_posterior))
+) %>%
+  ggplot(., aes( y = need_endorsed_prevalence,
+                 x = prevLikelihood_aep))+
+  #geom_errorbar(alpha = 0.3)+
+  #geom_errorbarh(alpha = 0.3)+
+  geom_point()+
+  #coord_fixed(ratio = 100)+
+  geom_abline(intercept = 0, slope = 1, lty = 3, alpha = 0.3)
+
+
+```
+
