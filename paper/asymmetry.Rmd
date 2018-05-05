@@ -106,18 +106,25 @@ In Chapter 3, we saw how generic statements can be judged as true under a wide r
 Despite these variable truth conditions, it is thought that generic statements often carry the *implied prevalence* of a universal or near-universal quantifier [@Abelson1966; @Gelman2002; @Cimpian2010]. 
 For example, when both children and adults learn "Bears like to eat ants", they tend to think that *almost all* bears like to eat ants [@Gelman2002].
 
-These two intuitions---generics have flexible truth conditions and are interpreted strongly---leads to a potential asymmetry. 
+These two intuitions lead to an asymmetry: Generics have flexible truth conditions but are interpreted strongly. 
 @Cimpian2010 found that upon reading a novel generic sentence (e.g., "Glippets have yellow fur."), participants infer that the implied referent prevalence is high (e.g., almost all glippets have yellow fur).
 At the same time, when participants are confronted with evaluating the same statement based on weak statistical evidence (e.g., 30% of glippets have yellow fur), some participants are still willing to endorse the statement.
-This is the essence of the asymmetry.
-The asymmetry is worrisome: Generics are a primary vehicle for conveying stereotypes [@GelmanEtAl2004]. 
-The decolage between endorsements and interpretations means that listeners might draw a too strong generalization than the speaker intended.
+
+The asymmetry is worrisome from a societal perspective.
+Generics are a primary vehicle for conveying stereotypes [@GelmanEtAl2004]. 
+The fact that listeners infer higher prevalence than speakers had in mind would explain why such stereotypes get propogated, even when the actual prevalence may be low. 
 
 The asymmetry is puzzling from a theoretical persepective as well.
 We know from Chapters 2 & 3 that both endorsements and interpretations display sensitivity to the property in precise quantitative ways. 
 But an asymmetry would indicate that the context-sensitivity of endorsements is different from that of interpretations.
 
-Here, we investigate the source of the asymmetry that was reported by @Cimpian2010, discovering that is a statistical artifact that results from the transformations employed to compare the two data sources (truth conditions and implied prevalence).
+What is the relationship between generic truth conditions and implied prevalence? 
+Here, we show that the asymmetry that was reported by @Cimpian2010 is biased in systematic ways resulting from averaging one source of data (endorsement judgments) in order to compare to the other (implied prevalence). 
+Instead, we propose comparing the measurements by weighting speaker endorsements based on *need probabilities*, that is, the probability with which a speaker would have to refer to a kind with a particular level of prevalence [@Kemp2018].
+We argue that weighting by need probabilities better summarizes the context-sensitivity of endorsement judgments by displaying much more quantitative variation.
+We find that, using this measure, there should be no asymmetry in theory. 
+We also find a relatively high correlation between average endorsed prevalence and implied prevalence, suggesting that 
+
 We show that the reported asymmetry is driven primarily by differences in implied prevalence, which we already explored in Chapter 2. 
 The endorsed prevalence (a composite measure used to compare to implied prevalence) shows substantially less variability across items, and thus, also reduced test-retest reliability. 
 Even so, our endorsement model is still able to explain a significant amount of variance in the average endorsed prevalence.
@@ -181,7 +188,7 @@ The asymmetry between endorsements and interpretations results from comparing pa
 These two measurements are not directly comparable because of the different scales.
 
 In order to compare the two, @Cimpian2010 took the 2AFC endorsement data and computed the average prevalence level at which individual participants endorsed the generic, what I will call *average endorsed prevalence*.
-A single participant's average endorsed prevalence is the mean of the prevalence levels for which the participant endorsed the generic. 
+A single participant's average endorsed prevalence was computed by the mean of the prevalence levels for which the participant endorsed the generic. 
 For example, if a participant endorsed the generic at 50%, 70%, and 90% prevalence levels, their *average endorsed prevalence* would be 70%. 
 As a participant becomes more lenient with the generic (endorsing it at lower prevalence levels), their average endorsed prevalence decreases; as a participant becomes more conservative (e.g., only endorsing the generic when the property applies to *all* or *almost all*), their average endorsed prevalence increases. 
 The theoretical minimum average endorsed prevalence is 50%, for a participant who endorsed the generic at all prevalence levels.^[
@@ -191,36 +198,58 @@ If a participant fails to endorse the generic for all prevalence levels, @Cimpia
 <!-- @Cimpian2010's analysis transforms the endorsement data onto the prevalence scale and behaves intuitively to how one would think the construct should behave. -->
 <!-- As a participant becomes more lenient with the generic (endorsing it at lower prevalence levels), their average endorsed prevalence decreases; as a participant becomes more conservative (e.g., only endorsing the generic when the property applies to *all* or *almost all*), their average endorsed prevalence increases.  -->
 
-With the exception of how the analysis handles participants who never endorse the statement, @Cimpian2010's analysis is an application of Bayes' rule.
+With the exception of how the analysis handles participants who never endorse the statement, @Cimpian2010's analysis is an application of Bayes' Theorem.
 Consider that each task each measures a conditional probability. 
-The implied prevalence task measures the probability of different prevalence levels $p$ given a generic statement $u$: $P_{implied}(p \mid u)$.
-The endorsement tasks measure the probability of endorsing a generic utterance $u$ given different prevalence levels: $P_{endorsed}(u \mid p)$. 
-These two conditional probabilities are related via Bayes' rule: $P(p \mid u) \propto P(u \mid p) \cdot P(p)$.
-For the asymmetry analysis, the mean implied prevalence $\sum_{p} p \cdot P_{implied}(p \mid u)$ is compared to the expected endorsement prevalence $\sum_{p} p\cdot P_{endorsed}(p \mid u)$, where $P_{endorsed}(p \mid u) \propto P_{endorsed}(u \mid p) \cdot P(p)$.
-@Cimpian2010's analysis realizes this calculation assuming a uniform prior on prevalences $P(p)$.
+The implied prevalence task measures the probability of different prevalence levels $r$ given a generic statement $u$: $\hat{P}_{implied}(r \mid u)$.^[
+  We use $\hat{P}$ to denote an empirically measured probability and $P$ to denote a theoretical probability.
+]
+The endorsement tasks measure the probability of endorsing a generic utterance $u$ given different prevalence levels: $\hat{P}_{endorsed}(u \mid r)$. 
+These two conditional probabilities are related via Bayes' rule: $P(r \mid u) \propto P(u \mid r) \cdot P(r)$.
+For the asymmetry analysis, the mean implied prevalence $\mathbb{E}[r_{implied}] = \sum_{r} r \cdot \hat{P}_{implied}(r \mid u)$ is compared to the expected endorsement prevalence $\mathbb{E}[r_{endorsed}] = \sum_{r} p\cdot \hat{P}_{endorsed}(r \mid u)$, where $\hat{P}_{endorsed}(r \mid u) \propto \hat{P}_{endorsed}(u \mid r) \cdot P(r)$.
+By taking the mean of the prevalences at which a participant endorsed the generic, @Cimpian2010's analysis realizes this calculation by assuming a uniform prior on prevalences $P(r)$.
 <!-- Recognizing the formal relationship behind @Cimpian2010's calculation makes explicit its assumptions (e.g., the uniform prior on $p$). -->
 
-Now that we have made explicit the mathematical relationship between implied and endorsed prevalence, we can apply the same analysis on a by-item, as opposed to a by-participant, basis.^[
-  If one wanted to calculate average endorsed prevalence on a participant-wise basis in addition to an item-wise basis, each participant would have to make a judgment at every prevalence level for each item. 
-  This is perhaps pragmatically strange (though the task is already a bit pragmatically strange) and @Cimpian2010  opts against this. 
-  Instead, they calculate average endorsed prevalence at the participant level (intuitively, getting at each participant's threshold for endorsement) and aggregate at the level of *property type*  (e.g., biological vs. accidental) in order to compare domain differences.
-]
-Because of the uniform prior, computing $P_{endorsed}(p \mid u)$ amounts to take the proportion of participants who endorse the generic at each prevalence level and normalizing those proportions to create a probability distribution. 
-For example, let's say participants rate the item "Lorches live in trees" as true at the five prevalence levels (10, 30, 50, 70, 90%) with proportions $[0.2, 0.2, 0.6, 0.9, 0.9]$ (e.g., 20% of participants endorse the statement when 10% or 30% of lorches live in trees, 90% of participants endorse the statement when 70% or 90% live in trees, etc.).
-We treat the proportions as an *unnormalized* probability distribution $P_{endorsed}(p \mid u)$ and normalize by dividing each by the sum of all endorsement proportions (e.g., $\frac{0.2}{0.2 + 0.2 + 0.6 + 0.9 + 0.9} = 0.07$, $\frac{0.9}{0.2 + 0.2 + 0.6 + 0.9 + 0.9} = 0.32$), yielding the following distribution: [0.07, 0.07, 0.21, 0.32, 0.32].
-We then take the expectation (i.e., the mean) of this distribution with respect to the prevalence level associated with each probability: *average endorsed prevalence* $= 0.07 \times 10\% + 0.07 \times 30\% + 0.21 \times 50\% + 0.32 \times 70\% + 0.32 \times 90\% = 65\%$.
-The *average implied prevalence* is the mean of participants responses to the question: "How many lorches live in trees?" after learning that "Lorches live in trees" ($\sim 90\%$, from Ch. 2 Expt. 2). 
-Thus, in this example, there is an asymmetry between the average endorsed prevalence ($65\%$) and average implied prevalence ($\sim 90\%$).
+<!-- Because of the uniform prior, computing $P_{endorsed}(p \mid u)$ amounts to take the proportion of participants who endorse the generic at each prevalence level and normalizing those proportions to create a probability distribution.  -->
+For example, let's say participants rate the item "Lorches are afraid of loud noises" as true at the five prevalence levels (10, 30, 50, 70, 90%) with proportions $[0.3, 0.3, 0.8, 0.9, 0.9]$ (e.g., 30% of participants endorse the statement when 10% or 30% of lorches live in trees, 90% of participants endorse the statement when 70% or 90% live in trees, etc.).
+These porportions are treated as an *unnormalized* likelihood distribution $\hat{P}_{endorsed}(u \mid r)$, multiplied by a uniform prior $P(r) = [1, 1, 1, 1, 1]$ to arrive at an unnormalized posterior of interest: $\hat{P}_{endorsed}(r \mid u)$. 
+With a uniform prior on $P(r)$, the posterior $\hat{P}_{endorsed}(r \mid u)$ is the same as the likeihood $\hat{P}_{endorsed}(u \mid r)$ (up to normalization).
+We normalize the posterior by dividing each by the sum of all endorsement proportions (e.g., $\frac{0.3}{0.3 + 0.3 + 0.8 + 0.9 + 0.9} = 0.09$, $\frac{0.9}{0.3 + 0.3 + 0.8 + 0.9 + 0.9} = 0.28$), yielding the following distribution: [0.09, 0.09, 0.25, 0.28, 0.28].
+To get the average endorsed prevalence, we then take the expectation (i.e., the mean) of this distribution with respect to the prevalence level associated with each probability: *average endorsed prevalence* $= 0.09 \times 10\% + 0.09 \times 30\% + 0.25 \times 50\% + 0.28 \times 70\% + 0.28 \times 90\% \approx 60\%$.
+The *average implied prevalence* is the mean of participants responses to the question: "How many lorches are afraid of loud noises?" after learning that "Lorches are afraid of loud noises" ($\sim 80\%$, from Ch. 2 Expt. 2). 
+Thus, in this example, there is an asymmetry between the average endorsed prevalence ($60\%$) and average implied prevalence ($\sim 80\%$).
 
-@Cimpian2010 argue that the asymmetry is anomalous when compared against quantifiers.
-In theory, *all* should get the following endorsement pattern: $[0, 0, 0, 0, 1]$, which would result in an average endorsed prevalence of 100\%; similarly, if you learn that "All lorches live in trees", you ought to report that 100% live in trees.
-*Most* ought to have a similar pattern:  $[0, 0, 1, 1, 1]$ for endorsements, resulting in an average endorsed prevalence of about 75%.^[
-  We assume here that 50% prevalence is sufficient to endorse most. The theoretical symmetry between average endorsed prevalence and average implied prevalence does not depend upon this decision, but only that there is some threshold beyond which *most* is fully endorsed.
-]
-If interpretation followed a fixed-threshold model with uniform priors on prevalence, the implied prevalence given a *most* statement would be uniformly distributed between 50% and 100%, resulting in an avaregae of 75%. 
-Again, there is symmetry between these two measurements for *most* and *all*. 
-However, this theoretical result for *most* assumes a uniform prior on $p$ for implied prevalence.
-Should we expect something different for the generic?
+Average endorsed prevalence aims to measure the average conditions under which speakers would assert a generic statement. 
+But by assuming a uniform prior on prevalence $P(r)$, @Cimpian2010 assume that speakers would encounter kinds with any prevalence level equally as often. 
+To more accurate model the situations with which a speaker would encounter kinds with various levels of prevalence for a property, we propose using a prior on prevalence that encodes *need probabilities*, that is, the probability that a speaker would need to communicate about a kind with that level of prevalence.
+As a proxy for a speaker's actual need probabilities, we can use participants' ratings of the prevalence of the feature in alternative categories, which we use as the listener's prevalence prior (Ch. 2, Expt. 2a). 
+The need probabilities for different levels of prevalence of the property *are afraid of loud noises* (taken from Ch. 2, Expt. 2a) is non-uniform over different levels of prevalence: [0.18, 0.10, 0.15, 0.15, 0.42].
+That is, it is not equally as likely that a speaker would need to refer to a kind for which 30% were afraid of loud noises as it is to refer to a 90% afriad of loud noises kind. 
+Using these probabilities as $P(r)$, we get the following:
+$$
+[0.3 \times 0.18, 0.3 \times 0.1, 0.8 \times 0.15, 0.9 \times 0.15, 0.9 \times 0.42] \\
+\propto [0.06, 0.05, 0.18, 0.2, 0.5]
+$$
+Using these need probabilities, higher prevalence levels have higher posterior probabilities of being endorsed because they are more likely to occur in the environment. 
+The expected value of this distribution, the average endorsed prevalence, is 70%.
+Thus, the apparent asymmetry is dramatically reduced when we take into the prior probability that a speaker would need to refer to such a prevalence level.
+
+
+
+<!-- Now that we have made explicit the mathematical relationship between implied and endorsed prevalence, we can apply the same analysis on a by-item, as opposed to a by-participant, basis.^[ -->
+<!--   If one wanted to calculate average endorsed prevalence on a participant-wise basis in addition to an item-wise basis, each participant would have to make a judgment at every prevalence level for each item.  -->
+<!--   This is perhaps pragmatically strange (though the task is already a bit pragmatically strange) and @Cimpian2010  opts against this.  -->
+<!--   Instead, they calculate average endorsed prevalence at the participant level (intuitively, getting at each participant's threshold for endorsement) and aggregate at the level of *property type*  (e.g., biological vs. accidental) in order to compare domain differences. -->
+<!-- ] -->
+
+<!-- @Cimpian2010 argue that the asymmetry is anomalous when compared against quantifiers. -->
+<!-- In theory, *all* should get the following endorsement pattern: $[0, 0, 0, 0, 1]$, which would result in an average endorsed prevalence of 100\%; similarly, if you learn that "All lorches live in trees", you ought to report that 100% live in trees. -->
+<!-- *Most* ought to have a similar pattern:  $[0, 0, 1, 1, 1]$ for endorsements, resulting in an average endorsed prevalence of about 75%.^[ -->
+<!--   We assume here that 50% prevalence is sufficient to endorse most. The theoretical symmetry between average endorsed prevalence and average implied prevalence does not depend upon this decision, but only that there is some threshold beyond which *most* is fully endorsed. -->
+<!-- ] -->
+<!-- If interpretation followed a fixed-threshold model with uniform priors on prevalence, the implied prevalence given a *most* statement would be uniformly distributed between 50% and 100%, resulting in an avaregae of 75%.  -->
+<!-- Again, there is symmetry between these two measurements for *most* and *all*.  -->
+<!-- However, this theoretical result for *most* assumes a uniform prior on $p$ for implied prevalence. -->
+<!-- Should we expect something different for the generic? -->
 
 From Chapters 2 and 3, we know that the following are good models for $P_{implied}(p \mid generic)$ and $P_{endorsed}(generic \mid p)$:
 
