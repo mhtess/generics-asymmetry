@@ -10,6 +10,10 @@ library(tidyboot)
 library(knitr)
 library(ggpirate)
 library(viridis)
+library(ggthemes)
+library(brms)
+library(lme4)
+theme_set(theme_few())
 ```
 
 ## Load data
@@ -78,6 +82,32 @@ df.c.int.bs %>%
 
 
 
+```{r endorsement regression}
+ df.c.endorsements <- df.c.asym %>%
+    filter(trial_type == "truth_conditions") %>%
+    mutate(stim_prevalence = as.numeric(stim_prevalence),
+           stim_prevalence = (stim_prevalence - mean(stim_prevalence))  / 20)
+
+
+# rs.lmer.endorse.prev.type <- glmer(response ~ stim_prevalence * stim_type + (1 | workerid), 
+#       data = df.c.endorsements, family = 'binomial')
+
+summary(rs.lmer.endorse.prev.type)
+
+rs.brm.endorse.prev.type <- brm(response ~ stim_prevalence * stim_type + 
+      (1 +  stim_type | workerid) + 
+      (1 | stim_property),
+    family = 'bernoulli',
+    iter = 2000,
+    chains = 2,
+    cores = 2,
+      data = df.c.endorsements)
+
+# save(rs.brm.endorse.prev.type, 
+#      file = "../paper/cached_results/cbg_results_brms.RData")
+```
+
+
 ```{r}
 df.c.endorse_by_prev <- df.c.asym %>%
     filter(trial_type == "truth_conditions") %>%
@@ -131,6 +161,20 @@ average_truth_conditions <- function(responses,prevalences){
   return(avePrev)
 }
 
+
+df.atc.subj <- df.c.asym %>%
+  filter(trial_type == "truth_conditions") %>%
+   mutate(stim_prevalence = as.numeric(stim_prevalence)) %>%
+    group_by(workerid, stim_type) %>%
+  summarise(response = average_truth_conditions(response,stim_prevalence)) 
+
+df.atc.subj %>% 
+  ggplot(., aes( x= stim_type, y = response))+
+  geom_pirate(violins = F, bars = F)
+```
+
+
+```{r}
 df.atc <- df.c.asym %>%
   filter(trial_type == "truth_conditions") %>%
    mutate(stim_prevalence = as.numeric(stim_prevalence)) %>%
@@ -175,7 +219,538 @@ bind_rows(
   #scale_x_continuous(limits = c(0, 100), breaks = c(10,  30, 50, 70,90))+
   #scale_y_continuous(limits = c(0, 1), breaks = c(0, 0.5, 1))
 
-save(df.c.endorse_by_prev, df.c.int.bs, df.atc,
-     file = "../paper/cached_results/cbg_results.RData")
+# save(df.c.endorse_by_prev, df.c.int.bs, df.atc,
+#      file = "../paper/cached_results/cbg_results.RData")
+```
+
+
+
+## Model predictions
+
+```{r}
+m.c.asym <- read_csv("../models/results/results-cimpian-L0-S1predict-byItem-structuredPrior_uncertain-semantics-nullDist_beta1_100_20000_burn10000_lag25_chain2.csv")
+
+
+m.c.asym.int <- m.c.asym %>%
+  filter(category == "posterior") %>%
+  group_by(param, property) %>%
+  summarize(val = mean(val)) %>%
+  group_by(param) %>%
+  summarize(MAP = estimate_mode(val),
+            cred_upper = hdi_upper(val), cred_lower = hdi_lower(val))
+
+
+m.c.asym.end <- m.c.asym %>%
+  filter(type == "endorsement") %>%
+  group_by(param, category) %>%
+  summarize(MAP = estimate_mode(val),
+            cred_upper = hdi_upper(val), cred_lower = hdi_lower(val))
+
+```
+
+```{r model speaker optiamlity}
+m.c.asym %>%
+  filter(type == "speakerOptimality") %>%
+  ggplot(., aes(x = val))+
+  geom_histogram()
+```
+
+
+
+```{r model endorsements}
+dodge_width <-0.1
+m.c.asym.end %>%
+  mutate("Property type" = factor(param,
+                                         levels = c("part",
+                                                    "vague",
+                                                    "color",
+                                                    "accidental"),
+                                         labels = c("body part",
+                                                    "color adj + part",
+                                                    "gradable adj + part",
+                                                    "accidental"))) %>%
+  ggplot(., aes( x = category, y = MAP, ymin = cred_lower,
+                 ymax = cred_upper, fill = `Property type`,
+                 color = `Property type`))+
+  geom_line(position = position_dodge(dodge_width), alpha = 0.4,
+            linetype = 3)+
+  geom_linerange(position = position_dodge(dodge_width), alpha = 0.6,
+                 size = 1)+
+  geom_point(position = position_dodge(dodge_width),
+             size = 2.5, shape = 21, color = 'black')+
+  scale_fill_solarized()+
+  scale_color_solarized()+
+  ylab("Proportion endorse")+
+  xlab("\n Referent prevalence")+
+  #scale_x_continuous(limits = c(0, 100), breaks = c(10,  30, 50, 70,90))+
+  scale_y_continuous(limits = c(0, 1), breaks = c(0, 0.5, 1))+
+  theme(legend.position = c(0.75, 0.27))
+  #coord_fixed(ratio = 65)
+```
+
+```{r add iteration number and average truth conditions}
+m.samp.i <- m.c.asym %>%
+  filter(type == "endorsement") %>%
+  mutate(parameter = paste(type, property, category, sep = "_")) %>%
+  select(-type, -property, -category) %>%
+  group_by(parameter) %>%
+  mutate(iteration = ave(parameter==parameter, parameter, FUN=cumsum)) %>%
+  ungroup() %>%
+  separate(parameter, into = c("type","property", "prevalence"), sep= "_")
+
+m.samp.atc <- m.samp.i %>%
+  rowwise() %>%
+  mutate(judgment = rbinom(n = 1, size = 1, prob = val)) %>%
+  group_by(property, param, iteration) %>% 
+  summarize(
+    total_endorsements = sum(judgment),
+    atc = ifelse(total_endorsements==0, 1, sum(judgment*as.numeric(prevalence)) / total_endorsements)
+    )
+
+
+m.samp.i %>%
+  group_by(param, prevalence) %>%
+  summarize(expval = mean(val))
+            
+            
+  # select(-val) %>%
+  # spread(prevalence)
+  # 
+  # #ungroup() %>%
+  # group_by(param, property, iteration) %>%
+  # mutate(norm_prob = val / sum(val),
+  #        prevalence = as.numeric(prevalence)) %>%
+  # summarize(ave_prev_score = sum(prevalence * norm_prob)) %>%
+  # ungroup()
+
+m.atc.summary <- m.samp.atc %>%
+  group_by(param, property) %>%
+  summarize(atc = mean(atc)) %>%
+  group_by(param) %>%
+  summarize(MAP = estimate_mode(atc),
+            cred_upper = hdi_upper(atc),
+            cred_lower = hdi_lower(atc))
+```
+
+
+```{r model asymmetry}
+m.cbg.asym <- bind_rows(
+  m.c.asym.int %>% mutate(src = "Implied"),
+  m.atc.summary %>% mutate(src = "Endorsed")
+)
+dodge_width = 0.5
+m.cbg.asym %>%
+  mutate("Property type" = factor(param,
+                                         levels = c("part",
+                                                    "vague",
+                                                    "color",
+                                                    "accidental"),
+                                         labels = c("body part",
+                                                    "color adj + part",
+                                                    "gradable adj + part",
+                                                    "accidental")),
+         src = factor(src, levels = c("Endorsed",
+                                      "Implied"),
+                      labels = c("Endorsed", "Implied"))) %>%
+  ggplot(., aes( x = `Property type`, y = MAP, ymin = cred_lower,
+                 ymax = cred_upper, fill = `Property type`, alpha = src))+
+  geom_col(position = position_dodge(dodge_width), width = dodge_width,
+           color = 'black')+
+  geom_errorbar(position = position_dodge(dodge_width),
+                 size = 1, width = 0.1)+
+  scale_fill_solarized()+
+  scale_alpha_manual(values = c(0.6, 1))+
+  #scale_y_continuous(limits = c(0, 100))+
+  ylab("Average prevalence")+
+  guides(fill = F)+
+  theme(axis.text.x = element_text(angle = 45, vjust =1 ,hjust = 1),
+        legend.title = element_blank(),
+        axis.title.x = element_blank()#,
+        #legend.position = c(0.75, 0.9)
+        )
+
+save(m.cbg.asym, m.c.asym.end, 
+     file = "../paper/cached_results/cbg_modelpredictions_alpha1_apriori.RData")
+
+```
+
+
+## Alternative *average truth conditions* calculations
+
+Do ATC calculation across the population and bootstrap.
+
+```{r}
+
+df.atc.bs <- df.c.asym %>%
+    group_by(stim_type) %>%
+    tidyboot(summary_function = function(x) x %>% summarise(atc = average_truth_conditions(response,stim_prevalence)),
+           statistics_functions = function(x) x %>%
+           summarise_at(vars(atc), funs(ci_upper, mean, ci_lower))
+           )
+
+df.atc.bs
+```
+
+
+looks like the full bootstrap returns values appreciably below the subject-wise analysis. technically, i should be resampling participants...
+
+### by participant resampling
+
+```{r}
+df.c.asym %>%
+  filter(trial_type == "truth_conditions")  %>%
+  select(stim_property, stim_prevalence) %>%
+  table(.)
+```
+
+
+Bootstrapping subjects
+
+```{r}
+average_truth_conditions <- function(responses,prevalences){
+  avePrev<-if (sum(responses)>0){
+    (mean(responses)*prevalences)/sum(responses)
+  } else {
+    100
+  }
+  return(avePrev)
+}
+
+
+bootstrap_atc <- function(i){
+  df.c.asym %>%
+    filter(trial_type == "truth_conditions") %>%
+    mutate(type_prev_response = paste(stim_type, "_",
+                                      stim_property, "_", 
+                                      stim_prevalence, "_", 
+                                      response, sep="")) %>%
+    select(workerid, trial_num, type_prev_response) %>%
+    spread(trial_num, type_prev_response) %>%
+    sample_n(40, replace = T) %>%
+    gather(trial_num, val, -workerid) %>%
+    separate(val, into = c("stim_type","property", "prevalence", "response"),
+             sep = "_") %>%
+    mutate(prevalence = as.numeric(prevalence),
+           response = as.numeric(response)) %>%
+    group_by(stim_type, property, prevalence) %>%
+    summarize(prop_endorse = mean(response)) %>%
+    ungroup() %>% 
+    #group_by(stim_type) %>%
+    group_by(stim_type, property) %>%
+    mutate(endorse_prob = prop_endorse/ sum(prop_endorse)) %>%
+    summarize(atc = sum(endorse_prob * prevalence),
+              i = i)
+}
+
+df.c.asym.bs <- bind_rows(lapply(1:500, bootstrap_atc))
+```
+
+```{r}
+df.c.asym.bs %>%
+  ggplot(., aes( x = property, y = atc , color = stim_type))+
+  geom_pirate(violins = F, bars = F)+
+  theme(axis.text.x = element_text(angle =45, hjust =1, vjust =1))
+```
+
+```{r}
+ df.c.asym %>%
+   filter(trial_type == "truth_conditions")  %>%
+   select(stim_property, stim_prevalence) %>%
+   table(.)
+
+ df.c.asym %>%
+   filter(trial_type == "truth_conditions")  %>%
+   select(stim_type, stim_prevalence) %>%
+   table(.)
+
+```
+
+The data is pretty sparse on a by-item basis. For examples, "feathers" has a very low ATC, but also has very 
+
+
+### BDA threshold model ? (doesn't work)
+
+```{r}
+bayesian_ave_truth_conditions <- '
+var noisyThreshold = function(x, t, noise){
+  Infer({model: function(){
+    flip(noise) ? binomial({n:1, p: 0.5}) :
+      x > t ? 1 : 0
+  }})
+}
+ 
+var property_types = _.uniqBy(_.map(data, "stim_type"))
+
+var model = function(){
+  var noise = uniformDrift({a: 0, b: 1, width: 0.1});
+  // var noise = uniformDraw(_.range(0, 1, 0.1))
+  extend(_.fromPairs(map(function(property){
+    var property_data = _.filter(data, {stim_type: property})
+    // var threshold = uniformDrift({a: 0, b: 1, width: 0.1});
+    var threshold = uniformDraw([0, 0.2, 0.4, 0.6, 0.8, 0.95])
+    mapData({data: data}, function(d){
+      observe(noisyThreshold(d.stim_prevalence / 100, threshold, noise), d.response)
+    })
+    return [property, threshold]
+  }, property_types)), {noise})
+}
+'
+```
+
+```{r}
+df.tc.data <- df.c.asym %>%
+  filter(trial_type == "truth_conditions") %>%
+   mutate(stim_prevalence = as.numeric(stim_prevalence)) %>%
+  select(workerid, stim_type, stim_prevalence, response)
+
+rs.wp.batc <- webppl(bayesian_ave_truth_conditions,
+       model_var = "model",
+       inference_opts = list(method = "MCMC", samples = 100,
+                             burn = 50, verbose = T),
+       #inference_opts = list(method = "enumerate"),
+       data_var = "data",
+       data = df.tc.data)
+```
+
+```{r}
+rs.wp.batc %>%
+  ggplot(., aes( x = value))+
+  geom_histogram()+
+  facet_wrap(~Parameter, scales = 'free')
+```
+
+
+
+### Need probabilities
+
+```{r}
+m.priors.i <- m.c.asym %>%
+  filter(param == "prevWhenPresent") %>%
+  mutate(parameter = paste(type, property, category, sep = "_")) %>%
+  select(-type, -property, -category) %>%
+  group_by(parameter) %>%
+  mutate(iteration = ave(parameter==parameter, parameter, FUN=cumsum)) %>%
+  ungroup() %>%
+  separate(parameter, into = c("type","property", "param"), sep= "_") %>%
+  spread(param, val) %>%
+  mutate(
+    need_0.1 = dbeta(0.1, shape1 = alpha, shape2 = beta),
+    need_0.3 = dbeta(0.3, shape1 = alpha, shape2 = beta),
+    need_0.5 = dbeta(0.5, shape1 = alpha, shape2 = beta),
+    need_0.7 = dbeta(0.7, shape1 = alpha, shape2 = beta),
+    need_0.9 = dbeta(0.9, shape1 = alpha, shape2 = beta)
+    ) %>%
+  gather(prev, need, starts_with("need")) %>%
+  separate(prev, into=c("scrap", "prevalence"), sep = "_") %>%
+  mutate(prevalence = as.numeric(prevalence))
+
+m.priors.need.summary <- m.priors.i %>%
+  group_by(property, prevalence) %>%
+  summarize(need_map = estimate_mode(need),
+            need_upper = hdi_upper(need),
+            need_lower = hdi_lower(need))
+```
+
+
+```{r}
+df.c.endorsements <- df.c.asym %>%
+    filter(trial_type == "truth_conditions")
+
+
+df.c.endorsements <- left_join(
+  df.c.endorsements %>%
+    mutate(stim_prevalence = as.numeric(stim_prevalence)), 
+  m.priors.need.summary %>%
+    mutate(stim_prevalence = prevalence*100) %>%
+    select(-prevalence) %>%
+    rename(stim_property = property)
+)
+
+bootstrap_need_aed <- function(i){
+  df.c.endorsements %>%
+    mutate(type_prev_need_response = paste(stim_type, "_",
+                                      stim_property, "_", 
+                                      stim_prevalence, "_", 
+                                      need_map, "_",
+                                      response, sep="")) %>%
+    select(workerid, trial_num, type_prev_need_response) %>%
+    spread(trial_num, type_prev_need_response) %>%
+    sample_n(40, replace = T) %>%
+    gather(trial_num, val, -workerid) %>%
+    separate(val, into = c("stim_type","property", "prevalence", "need", "response"),
+             sep = "_") %>%
+    mutate(prevalence = as.numeric(prevalence),
+           need = as.numeric(need),
+           response = as.numeric(response)) %>%
+    group_by(stim_type, property, prevalence, need) %>%
+    summarize(prop_endorse = mean(response)) %>%
+    ungroup() %>% 
+    #group_by(stim_type, property) %>%
+    group_by(stim_type) %>%
+    mutate(
+      endorse_posterior_uniform = prop_endorse / sum(prop_endorse),
+      endorse_posterior = prop_endorse * need,
+      endorse_posterior_normalized = endorse_posterior/ sum(endorse_posterior)) %>%
+    summarize(aed = sum(endorse_posterior_normalized * prevalence),
+              aed_uniform = sum(endorse_posterior_uniform * prevalence),
+              i = i)
+}
+
+df.c.need_aed.bs <- bind_rows(lapply(1:500, bootstrap_need_aed))
+```
+
+```{r summarize need aed}
+df.c.need_aed.bs.summary <- df.c.need_aed.bs %>%
+  group_by(stim_type) %>%
+  #group_by(stim_type, property) %>%
+  summarize(mean = mean(aed, na.rm = T),
+            ci_upper = quantile(aed, 0.975, na.rm = T),
+            ci_lower = quantile(aed, 0.025, na.rm = T))
+```
+
+```{r}
+dodge_width <- 0.8
+df.c.int.bs <- df.c.asym %>%
+  filter(trial_type == "implied_prevalence") %>%
+  mutate(response = 100*response) %>%
+  group_by(stim_type) %>%
+  tidyboot_mean(column = response)
+
+df.c.need_aed.int.bs <- bind_rows(
+  df.c.int.bs %>% mutate(src = 'implied prevalence'),
+  df.c.need_aed.bs.summary %>% mutate(src = 'truth conditions')
+)
+
+df.c.need_aed.int.bs %>%
+  mutate("Property type" = factor(stim_type,
+                                         levels = c("part",
+                                                    "vague",
+                                                    "color",
+                                                    "accidental"),
+                                         labels = c("body part",
+                                                    "color adj + part",
+                                                    "gradable adj + part",
+                                                    "accidental")),
+         src = factor(src, levels = c("truth conditions",
+                                      "implied prevalence"))) %>%
+  ggplot(., aes( x = `Property type`, y = mean, ymin = ci_lower,
+                 ymax = ci_upper, fill = `Property type`, alpha = src))+
+  geom_col(position = position_dodge(dodge_width), width = dodge_width,
+           color = 'black')+
+  geom_errorbar(position = position_dodge(dodge_width),
+                 size = 1, width = 0.1)+
+  scale_fill_solarized()+
+  scale_alpha_manual(values = c(0.6, 1))+
+  scale_y_continuous(limits = c(0, 100))+
+  ylab("Average truth conditions")+
+  guides(fill = F)+
+  theme(axis.text.x = element_text(angle = 45, vjust =1 ,hjust = 1),
+        legend.title = element_blank(),
+        axis.title.x = element_blank())
+  #scale_x_continuous(limits = c(0, 100), breaks = c(10,  30, 50, 70,90))+
+  #scale_y_continuous(limits = c(0, 1), breaks = c(0, 0.5, 1))
+
+save(df.c.need_aed.int.bs, df.c.need_aed.int.item.bs.summary,df.c.unif_aed.int.item.bs.summary,
+     file = "../paper/cached_results/cbg_results_aedNeed.RData")
+```
+
+```{r item wise asymmetry with aed}
+bootstrap_need_aed_property <- function(i){
+  df.c.endorsements %>%
+    mutate(type_prev_need_response = paste(stim_type, "_",
+                                      stim_property, "_", 
+                                      stim_prevalence, "_", 
+                                      need_map, "_",
+                                      response, sep="")) %>%
+    select(workerid, trial_num, type_prev_need_response) %>%
+    spread(trial_num, type_prev_need_response) %>%
+    sample_n(40, replace = T) %>%
+    gather(trial_num, val, -workerid) %>%
+    separate(val, into = c("stim_type","property", "prevalence", "need", "response"),
+             sep = "_") %>%
+    mutate(prevalence = as.numeric(prevalence),
+           need = as.numeric(need),
+           response = as.numeric(response)) %>%
+    group_by(stim_type, property, prevalence, need) %>%
+    summarize(prop_endorse = mean(response)) %>%
+    ungroup() %>% 
+    group_by(stim_type, property) %>%
+    #group_by(stim_type) %>%
+    mutate(
+      endorse_posterior_uniform = prop_endorse / sum(prop_endorse),
+      endorse_posterior = prop_endorse * need,
+      endorse_posterior_normalized = endorse_posterior/ sum(endorse_posterior)) %>%
+    summarize(aed = sum(endorse_posterior_normalized * prevalence),
+              aed_uniform = sum(endorse_posterior_uniform * prevalence),
+              i = i)
+}
+
+df.c.need_aed.item.bs <- bind_rows(lapply(1:500, bootstrap_need_aed_property))
+
+df.c.int.item.bs <- df.c.asym %>%
+  filter(trial_type == "implied_prevalence") %>%
+  mutate(response = 100*response) %>%
+  group_by(stim_type, stim_property) %>%
+  tidyboot_mean(column = response)
+
+df.c.need_aed.item.bs.summary <- df.c.need_aed.item.bs %>%
+  #group_by(stim_type) %>%
+  group_by(stim_type, property) %>%
+  summarize(aed_mean = mean(aed, na.rm = T),
+            aed_upper = quantile(aed, 0.975, na.rm = T),
+            aed_lower = quantile(aed, 0.025, na.rm = T)) %>%
+  ungroup() %>% rename(stim_property = property)
+
+df.c.unif_aed.item.bs.summary <- df.c.need_aed.item.bs %>%
+  #group_by(stim_type) %>%
+  group_by(stim_type, property) %>%
+  summarize(aed_mean = mean(aed_uniform, na.rm = T),
+            aed_upper = quantile(aed_uniform, 0.975, na.rm = T),
+            aed_lower = quantile(aed_uniform, 0.025, na.rm = T)) %>%
+  ungroup() %>% rename(stim_property = property)
+
+
+
+df.c.need_aed.int.item.bs.summary<- left_join(
+  df.c.int.item.bs,
+  df.c.need_aed.item.bs.summary 
+)
+
+df.c.unif_aed.int.item.bs.summary<- left_join(
+  df.c.int.item.bs,
+  df.c.unif_aed.item.bs.summary 
+)
+
+df.c.unif_aed.int.item.bs.summary %>%
+  mutate("Property type" = factor(stim_type,
+                                         levels = c("part",
+                                                    "vague",
+                                                    "color",
+                                                    "accidental"),
+                                         labels = c("body part",
+                                                    "color adj + part",
+                                                    "gradable adj + part",
+                                                    "accidental"))) %>%
+  ggplot(., aes( x = aed_mean, xmin = aed_lower, 
+                 xmax = aed_upper,
+                 y = mean, ymin = ci_lower,
+                 ymax = ci_upper, color = `Property type`))+
+  geom_point()+
+  geom_errorbar(alpha = 0.3)+
+  geom_errorbarh(alpha = 0.3)+
+  scale_fill_solarized()+
+  scale_alpha_manual(values = c(0.6, 1))+
+  #scale_y_continuous(limits = c(25, 100))+
+  #scale_x_continuous(limits = c(25, 100))+
+  geom_abline(intercept = 0, slope = 1)+
+  #ylab("Average truth conditions")+
+  guides(fill = F)+
+  xlab("average endorsed prevalence")+
+  ylab("average implied prevalence")
+```
+
+
+```{r}
+with(df.c.need_aed.int.item.bs.summary, cor(aed_mean, mean))
 ```
 

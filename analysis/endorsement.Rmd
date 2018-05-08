@@ -587,8 +587,22 @@ bootstrapPriors <- function(i){
     gather(state, n, -property) %>%
     group_by(property) %>%
     mutate(prop = (n+1) / sum(n + 1),
-         prop = round(prop, 5),
+         prop = round(prop, 5)) %>%
+    select(-n) %>%
+  spread(state, prop) %>%
+  mutate(`10` = (`0.075`+ `0.125` + `0.175`)/3,
+         `30` = (`0.225` + `0.275` + `0.325` + `0.375`)/4,
+         `50` = (`0.425` + `0.475` + `0.525` + `0.575`)/4,
+         `70` = (`0.625` + `0.675` + `0.725` + `0.775`)/4,
+         `90` = (`0.825` + `0.875` + `0.925` + `0.975`)/4
+         ) %>%
+  select(`10`, `30`,`50`, `70`, `90`) %>%
+  gather(prevalence_level, need_probability, -property) %>%
+  mutate(prevalence_level = as.numeric(prevalence_level)) %>%
+  group_by(property) %>%
+  mutate(normalized_need_prob = need_probability / sum(need_probability),
          i = i)
+
 }
 
 no_cores <- detectCores() - 1
@@ -621,11 +635,17 @@ endorsement.properties <-  unique(df.end.1.filtered.property$property)
 df.prior.3.filtered.needProbs <- df.prior.3.filtered.bs.summary %>%
   select(-lower, -upper) %>%
   spread(state, mean) %>%
-  mutate(`10` = (`0.075`+ `0.125`)/2,
-         `30` = (`0.275` + `0.325`)/2,
-         `50` = (`0.475` + `0.525`)/2,
-         `70` = (`0.675` + `0.725`)/2,
-         `90` = (`0.875` + `0.925`)/2
+  # mutate(`10` = (`0.075`+ `0.125`)/2,
+  #        `30` = (`0.275` + `0.325`)/2,
+  #        `50` = (`0.475` + `0.525`)/2,
+  #        `70` = (`0.675` + `0.725`)/2,
+  #        `90` = (`0.875` + `0.925`)/2
+  #        ) %>%
+  mutate(`10` = (`0.075`+ `0.125` + `0.175`)/3,
+         `30` = (`0.225` + `0.275` + `0.325` + `0.375`)/4,
+         `50` = (`0.425` + `0.475` + `0.525` + `0.575`)/4,
+         `70` = (`0.625` + `0.675` + `0.725` + `0.775`)/4,
+         `90` = (`0.825` + `0.875` + `0.925` + `0.975`)/4
          ) %>%
   select(`10`, `30`,`50`, `70`, `90`) %>%
   gather(prevalence_level, need_probability, -property) %>%
@@ -634,64 +654,212 @@ df.prior.3.filtered.needProbs <- df.prior.3.filtered.bs.summary %>%
   mutate(normalized_need_prob = need_probability / sum(need_probability))
 
 
-df.end.1.aep.rdy <- left_join(df.end.1.filtered.property %>%
-  filter(property %in% endorsement.properties),
-  df.prior.3.filtered.needProbs) %>%
-  mutate(posteriorProb_unnormalized = mean * normalized_need_prob) %>%
-  group_by(property) %>%
-  mutate(needPosterior_normalized = posteriorProb_unnormalized / sum(posteriorProb_unnormalized),
-         uniformPosterior_normalized = mean / sum(mean)) %>%
-  select(-n, -empirical_stat, -ci_lower, -ci_upper, -need_probability)
+df.prior.3.filtered.needProbs.bs <- df.prior.3.filtered.bs %>%
+  group_by(property, prevalence_level) %>%
+  summarize( lower_need = quantile(normalized_need_prob, 0.025),
+             mean_need = mean(normalized_need_prob),
+             upper_need = quantile(normalized_need_prob, 0.975)) 
+```
+
+
+```{r bootstrap aed with need}
+df.end.1.filtered.need <- left_join(df.end.1.filtered,df.prior.3.filtered.needProbs.bs)
+bootstrapAEP <- function(i){
+  
+  df.end.1.filtered.need %>%
+    group_by(property, prevalence_level, mean_need) %>%
+    sample_n(round(mean(df.end.1.filtered.n_responses_per_item$n)), replace = TRUE) %>%
+    summarize(prop = sum(response) / n()) %>%
+    ungroup () %>%
+    mutate(post_unorm = (prop * mean_need)) %>%
+    group_by(property) %>%
+    mutate(post_norm = post_unorm / sum(post_unorm),
+           prop_norm = prop / sum(prop)) %>%
+    summarize(aep = sum(post_norm * prevalence_level),
+              aep_unif = sum(prop_norm * prevalence_level),
+              i = i)
+
+}
+
+no_cores <- detectCores() - 1
+cl <- makeCluster(no_cores, type="FORK")
+start_time <- Sys.time()
+
+df.end.1.filtered.aep.bs <- bind_rows(
+  parLapply(cl, 1:100, bootstrapAEP)
+)
+
+end_time <- Sys.time()
+print(end_time - start_time) 
+stopCluster(cl)
+
+
+df.end.1.filtered.aep.bs.summary <- df.end.1.filtered.aep.bs %>%
+  gather(src, val, aep, aep_unif) %>%
+  group_by(property, src) %>%
+  summarize( aep_lower = quantile(val, 0.025),
+             aep_mean = mean(val),
+             aep_upper = quantile(val, 0.975))
+```
+
+```{r}
+df.end.1.aep.rdy <- left_join(df.end.1.filtered.property %>% 
+    filter(property %in% endorsement.properties),
+  df.prior.3.filtered.needProbs.bs ) %>%
+    mutate(posteriorProb_unnormalized = mean * mean_need,
+           posteriorProb_unnormalized_upper = ci_upper * mean_need,
+           posteriorProb_unnormalized_lower = ci_lower* mean_need) %>%
+    group_by(property) %>%
+    mutate(
+      needPosterior_normalized = posteriorProb_unnormalized / sum(posteriorProb_unnormalized),
+      needPosterior_upper= posteriorProb_unnormalized_upper / sum(posteriorProb_unnormalized_upper),
+      needPosterior_lower = posteriorProb_unnormalized_lower / sum(posteriorProb_unnormalized_lower),
+      uniformPosterior_normalized = mean / sum(mean),
+      uniformPosterior_normalized_upper = ci_upper / sum(ci_upper),
+      uniformPosterior_normalized_lower = ci_lower / sum(ci_lower)
+      ) %>%
+  select(-n, -empirical_stat, -ci_lower, -ci_upper, -mean_need, -lower_need, -upper_need)
 
 
 df.end.1.aep <- df.end.1.aep.rdy %>%
   group_by(property) %>%
   summarize(need_endorsed_prevalence = sum(needPosterior_normalized*prevalence_level),
             uniform_endorsed_prevalence = sum(uniformPosterior_normalized*prevalence_level))
+
+df.end.1.aep %>%
+    ggplot(., aes( y = uniform_endorsed_prevalence, 
+                 x = need_endorsed_prevalence))+
+  #geom_errorbarh(alpha = 0.3)+
+  geom_point()
+  #coord_fixed(ratio = 100)+
+
+with(df.end.1.aep, cor(need_endorsed_prevalence, uniform_endorsed_prevalence))
 ```
 
 
 ```{r compaire aep with aip}
 df.end.1.aep.aip <- left_join(
-  df.end.1.aep,
+  df.end.1.filtered.aep.bs.summary,
     md.impprev %>%
       ungroup() %>%
       distinct(property, n, mean, ci_lower, ci_upper)
-) 
+) %>%
+  mutate(absErr = abs(mean - aep_mean/100))
 
 df.end.1.aep.aip %>%
     ggplot(., aes( y = mean, ymin = ci_lower, ymax = ci_upper,
-                 x = need_endorsed_prevalence))+
+                 x = aep_mean/ 100,
+                 xmin = aep_lower / 100,
+                 xmax = aep_upper / 100))+
   geom_errorbar(alpha = 0.3)+
-  #geom_errorbarh(alpha = 0.3)+
+  geom_errorbarh(alpha = 0.3)+
   geom_point()+
+  facet_wrap(~src)+
   #coord_fixed(ratio = 100)+
   geom_abline(intercept = 0, slope = 1, lty = 3, alpha = 0.3)
 
+
+
+df.end.1.aep.aip %>%
+  group_by(src) %>%
+  summarize ( r = cor(mean, aep_mean))
 ```
 
-```{r compaire aep with model prediction}
-# model prediction computed in asymmetry-models.Rmd (should port over here)
 
-m.aep <- left_join(m.samp.summary %>%
+## Compare AEP w model predictions
+
+```{r}
+model.path <- "../models/results/"
+model.prefix <- "results-genint-S1-endorsePrediction-int6-prior3-3Components_"
+#model.prefix <- "results-asymmetry-L0-S1-int6-end1-prior3n200-3Components_"
+n_samples <- 500000
+n_burn <- n_samples / 2
+lg <- 150
+
+alternative_semantics <- c("uncertain")
+
+
+m.samp <- data.frame()
+for (sem in alternative_semantics){
+  
+  model.files <- list.files(
+  path = model.path,
+  pattern = paste(model.prefix, sem, "-semantics_", 
+                  n_samples, "_burn", n_burn,
+                  "_lag", lg, "_chain", sep = "")
+  )
+
+  for (modfile in model.files){
+    m.item <- read_csv(paste(model.path , modfile, sep = ""))
+  
+    m.samp <- bind_rows(
+      m.samp,
+      m.item %>% mutate(chain = match(modfile, model.files),
+                        semantics = sem)
+    )
+    
+  }
+}
+m.samp <- m.samp %>%
+  mutate(param = gsub("&quotechar", "", param)) %>%
+  rename(optimality = property, prevalence = category, property = param)
+
+
+m.samp.need <- left_join(m.samp %>%
+                           filter(property %in% df.end.1.aep.aip$property,
+                                  type == "endorsement") %>%
     mutate(prevalence_level = round(as.numeric(prevalence)*10) * 10),
   df.prior.3.filtered.needProbs) %>%
-  mutate(needPosterior_endorsement = MAP*need_probability) %>%
-  group_by(property) %>%
-  mutate(needPosterior_normalized = needPosterior_endorsement / sum(needPosterior_endorsement)) %>%
-  group_by(property) %>%
-  summarize(model_aep = sum(prevalence_level * needPosterior_normalized))
+  mutate(parameter = paste(type, property, optimality, 
+                           prevalence_level, semantics, normalized_need_prob,
+                           sep = "_")) %>%
+  select(parameter, val) %>%
+  group_by(parameter) %>%
+  mutate(iteration = ave(parameter==parameter, parameter, FUN=cumsum)) %>%
+  ungroup() %>%
+  separate(parameter, into = c("type","property", "optimality", "prevalence_level", "semantics",  "normalized_need_prob"), sep= "_")
+
+m.samp.aep <- m.samp.need %>%
+  filter(type == "endorsement") %>%
+  mutate(prevalence_level = as.numeric(prevalence_level),
+         normalized_need_prob = as.numeric(normalized_need_prob)) %>%
+  mutate(post_end = normalized_need_prob * val) %>%
+  group_by(property, semantics, optimality, iteration) %>%
+  mutate(norm_post_end = post_end / sum(post_end)) %>%
+  summarize(aep = sum(prevalence_level * norm_post_end)) %>% 
+  group_by(property, semantics, optimality) %>%
+  summarize(MAP = estimate_mode(aep),
+            cred_upper = hdi_upper(aep),
+            cred_lower = hdi_lower(aep))
+```
+
+
+
+
+```{r compaire aep with model prediction}
+# m.aep <- left_join(m.samp.summary %>%
+#     mutate(prevalence_level = round(as.numeric(prevalence)*10) * 10),
+#   df.prior.3.filtered.needProbs) %>%
+#   mutate(needPosterior_endorsement = MAP*need_probability) %>%
+#   group_by(property) %>%
+#   mutate(needPosterior_normalized = needPosterior_endorsement / sum(needPosterior_endorsement)) %>%
+#   group_by(property) %>%
+#   summarize(model_aep = sum(prevalence_level * needPosterior_normalized))
 
 left_join(
-  df.end.1.aep, m.aep
+  df.end.1.aep.aip, m.samp.aep %>% filter(optimality == 5)
 ) %>%
-  ggplot(., aes( y = need_endorsed_prevalence,
-                 x = model_aep))+
-  #geom_errorbar(alpha = 0.3)+
-  #geom_errorbarh(alpha = 0.3)+
+  ggplot(., aes( y = aep_mean, ymin = aep_lower, ymax = aep_upper,
+                 x = MAP, xmin = cred_lower, xmax = cred_upper))+
+  geom_errorbar(alpha = 0.3)+
+  geom_errorbarh(alpha = 0.3)+
+  facet_wrap(~src)+
   geom_point()+
   #coord_fixed(ratio = 100)+
-  geom_abline(intercept = 0, slope = 1, lty = 3, alpha = 0.3)
+  geom_abline(intercept = 0, slope = 1, lty = 3, alpha = 0.3)+
+  #xlim(27, 80)+
+  #ylim(27, 80)+
+  coord_fixed()
 ```
 
 ```{r alternative models}
@@ -728,5 +896,11 @@ left_join(
   geom_abline(intercept = 0, slope = 1, lty = 3, alpha = 0.3)
 
 
+```
+
+```{r}
+save(df.end.1.aep.aip, m.samp.aep,
+     df.prior.3.filtered.needProbs, df.end.1.aep,
+     file = "../paper/cached_results/expt_aep_comparisons.RData")
 ```
 
