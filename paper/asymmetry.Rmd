@@ -1023,30 +1023,65 @@ ggplot(md.end1.atc.summary,
 
 
 
-We next examine the endorsement data by computing average endorsed prevalence assuming a need probability distribution that follows the environmental statistics of the property, operationlized using the prevalence prior elicited for these same items in Ch. 2 (Expt. 2a). 
+We next examine the endorsement data by computing average endorsed prevalence assuming a need probability distribution that follows the environmental statistics of the property, operationalized using the prevalence prior elicited for these same items in Ch. 2 (Expt. 2a). 
 Rather than take the linear average of the prevalence levels at which participants endorse the generic sentence, we weight these endorsements by the probability that the prevalence level would occur for that property.
 For example, the property *is afraid of loud noises* has a 0.43 probability of occuring around 90% prevalence within a kind (averaging between 80-100% prevalence) whereas the property *carries malaria* only has a 0.09 probability of occuring with that same prevalence; the endorsement ratings are thus weighted to reflect these environmental statistics, providing a more accurate measure of the average prevalence at which we would expect speakers to use the generics.
 Using this environmental need probability, the average endorsed prevalence shows a remarkably improved reliability ($\rho =$ `r format(df.end.aep_need.splithalf.r[[1, "mean_r"]], digits = 2)`[`r format(df.end.aep_need.splithalf.r[[1, "lower_r"]], digits = 2)`, `r format(df.end.aep_need.splithalf.r[[1, "upper_r"]], digits = 2)`]).
 
-We perform the same transformations to the model predicted endorsements (again, generated *a priori* after fitting to the implied prevalence data). 
 
-
-
-
-
-```{r aepScatter, fig.width = 10, fig.asp = 0.5, fig.cap="Here is a caption."}
+```{r load aep scatter dfs}
 load(file = "cached_results/expt_aep_comparisons.RData")
 #df.end.1.aep.aip, m.samp.aep, df.prior.3.filtered.needProbs, df.end.1.aep
 
-left_join(
+
+df.end.1.aep_need <- left_join(
   df.end.1.aep.aip %>%
     filter(src == "aep"), m.samp.aep %>% filter(optimality == 5)
-) %>% 
-  summarize( r = cor(aep_mean, MAP))
-fig.aep_need.modelscatter <- left_join(
-  df.end.1.aep.aip %>%
-    filter(src == "aep"), m.samp.aep %>% filter(optimality == 5)
-) %>%
+) %>% ungroup()
+
+df.end.1.aep_need.prior <- left_join(
+  df.end.1.aep, df.prior.3.filtered.needProbs %>%
+  group_by(property) %>%
+  summarize(uniformLikelihood_aep = sum(prevalence_level*normalized_need_prob))
+) %>% ungroup()
+
+df.end.1.aep_need.invariant <- left_join(
+  df.end.1.aep, df.prior.3.filtered.needProbs %>%
+  mutate(prev_posterior  = prevalence_level * normalized_need_prob) %>%
+  group_by(property) %>%
+  mutate(normalized_prev_posterior  = prev_posterior /sum(prev_posterior)) %>%
+  summarize(prevLikelihood_aep = sum(prevalence_level*normalized_prev_posterior))
+) %>% ungroup()
+
+df.end.1.aep_need.stats <- df.end.1.aep_need %>% ungroup() %>%
+  summarize( r = cor(aep_mean, MAP),
+             mse = mean((aep_mean-MAP) ^ 2),
+             n = n())
+
+df.end.1.aep_need.prior.stats <- df.end.1.aep_need.prior %>% ungroup() %>%
+  summarize( r = cor(need_endorsed_prevalence, uniformLikelihood_aep),
+             mse = mean((need_endorsed_prevalence-uniformLikelihood_aep) ^ 2),
+             n = n())
+
+df.end.1.aep_need.invariant.stats <- df.end.1.aep_need.invariant %>% ungroup() %>%
+  summarize( r = cor(need_endorsed_prevalence, prevLikelihood_aep),
+             mse = mean((need_endorsed_prevalence-prevLikelihood_aep) ^ 2),
+             n = n())
+
+```
+
+We perform the same transformations to the model predicted endorsements (again, generated *a priori* after fitting to the implied prevalence data). 
+We find that the generics endorsement model shows a strong correlation to the average endorsed prevalence ($r(`r df.end.1.aep_need.stats[[1,"n"]]`) = `r round(df.end.1.aep_need.stats[[1,"r"]], 3)`$, MSE $=`r df.end.1.aep_need.stats[[1,"mse"]]`$; Figure\ \@ref(fig:aepScatter)A).
+To better understand the contribution of the need probabilities to the resulting average endorsed prevalence, we ran control models that only used the need probabilities (i.e., if the model endorsed the generic equally as often for all prevalence levels and all properties) and that used the need probabilities and a context-invariant endorsement model (i.e., if the model endorsed the generic proportional to the prevalence level, but with no differentiation among the properties).
+These control models also show a strong correlation to the data (prior only: $r(`r df.end.1.aep_need.prior.stats[[1,"n"]]`) = `r round(df.end.1.aep_need.prior.stats[[1,"r"]], 3)`$, MSE $=`r df.end.1.aep_need.prior.stats[[1,"mse"]]`$; Figure\ \@ref(fig:aepScatter)B, and context-invariant endorsement model: $r(`r df.end.1.aep_need.invariant.stats[[1,"n"]]`) = `r round(df.end.1.aep_need.invariant.stats[[1,"r"]], 3)`$, MSE $=`r df.end.1.aep_need.invariant.stats[[1,"mse"]]`$; Figure\ \@ref(fig:aepScatter)C), though the prior only model consistently *underpredicts* the average endorsed prevalence while the context-invariant model consistently *overpredicts* the average endorsed prevalence.
+
+Finally, we look at the asymmetry between endorsed prevalence and implied prevalence (taken from Ch. 2, Expt. 2a), both when average endorsed prevalence is computed assuming uniform need probabilities [as done by @Cimpian2010] and assuming environmental statistics for the need probabilities. 
+As indicated by the earlier analyses, the uniform need probabilities do not provide any quantitative variation to distingiush among endorsement patterns for different generics, so the resulting asymmetries are entirely driven by differences in the average implied prevalence (Figure\ \@ref(fig:aepAipScatter)A).
+When the need probabilities reflect the statistics of the environment, however, asymmetries result both by differnces in endorsements and in implied prevalence (Figure\ \@ref(fig:aepAipScatter)B).
+The result, then, the majority of properties still show an asymmetry wherein implied prevalence is greater than endorsed prevalence (points above the $y=x$ line) provides more compelling evidence that generics do result in *evidence exaggeration*, even controlling for the environmental statistics of use.
+
+```{r aepScatter, fig.width = 10, fig.asp = 0.5, fig.cap="Here is a caption."}
+fig.aep_need.modelscatter <- df.end.1.aep_need %>%
   ggplot(., aes( y = aep_mean, ymin = aep_lower, ymax = aep_upper,
                  x = MAP, xmin = cred_lower, xmax = cred_upper))+
   geom_errorbar(alpha = 0.3)+
@@ -1062,11 +1097,7 @@ fig.aep_need.modelscatter <- left_join(
 
 
 # prior expectation only (i.e., uniform endorsement model)
-fig.aep_need.priorscatter <- left_join(
-  df.end.1.aep, df.prior.3.filtered.needProbs %>%
-  group_by(property) %>%
-  summarize(uniformLikelihood_aep = sum(prevalence_level*normalized_need_prob))
-) %>%
+fig.aep_need.priorscatter <- df.end.1.aep_need.prior %>%
   ggplot(., aes( y = need_endorsed_prevalence,
                  x = uniformLikelihood_aep))+
   #geom_errorbar(alpha = 0.3)+
@@ -1082,13 +1113,7 @@ fig.aep_need.priorscatter <- left_join(
 
 
 # prevalence endorsement model
-fig.aep_need.invariantscatter <- left_join(
-  df.end.1.aep, df.prior.3.filtered.needProbs %>%
-  mutate(prev_posterior  = prevalence_level * normalized_need_prob) %>%
-  group_by(property) %>%
-  mutate(normalized_prev_posterior  = prev_posterior /sum(prev_posterior)) %>%
-  summarize(prevLikelihood_aep = sum(prevalence_level*normalized_prev_posterior))
-) %>%
+fig.aep_need.invariantscatter <-  df.end.1.aep_need.invariant %>%
   ggplot(., aes( y = need_endorsed_prevalence,
                  x = prevLikelihood_aep))+
   #geom_errorbar(alpha = 0.3)+
@@ -1114,7 +1139,9 @@ cowplot::plot_grid(
 ```
 
 
-```{r aepAipScatter, fig.width = 7, fig.asp = 0.5, fig.cap="Here is a caption."}
+
+
+```{r aepAipScatter, fig.width = 7, fig.asp = 0.5, fig.cap="Here is a caption.", cache=F}
 df.end.1.aep.aip %>%
   mutate(src = factor(src, levels = c("aep_unif", "aep"),
                       labels = c("Uniform need probability (Cimpian et al., 2010)",
@@ -1138,6 +1165,7 @@ df.end.1.aep.aip %>%
 
 # Discussion
 
+- discuss reliability of the prevalence data, and need to oversamples
 
 # References
 
