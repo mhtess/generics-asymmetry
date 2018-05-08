@@ -1036,7 +1036,7 @@ load(file = "cached_results/expt_aep_comparisons.RData")
 
 df.end.1.aep_need <- left_join(
   df.end.1.aep.aip %>%
-    filter(src == "aep"), m.samp.aep %>% filter(optimality == 5)
+    filter(src == "aep"), m.samp.aep #%>% filter(optimality == 5)
 ) %>% ungroup()
 
 df.end.1.aep_need.prior <- left_join(
@@ -1067,7 +1067,6 @@ df.end.1.aep_need.invariant.stats <- df.end.1.aep_need.invariant %>% ungroup() %
   summarize( r = cor(need_endorsed_prevalence, prevLikelihood_aep),
              mse = mean((need_endorsed_prevalence-prevLikelihood_aep) ^ 2),
              n = n())
-
 ```
 
 We perform the same transformations to the model predicted endorsements (again, generated *a priori* after fitting to the implied prevalence data). 
@@ -1080,7 +1079,7 @@ As indicated by the earlier analyses, the uniform need probabilities do not prov
 When the need probabilities reflect the statistics of the environment, however, asymmetries result both by differnces in endorsements and in implied prevalence (Figure\ \@ref(fig:aepAipScatter)B).
 The result, then, the majority of properties still show an asymmetry wherein implied prevalence is greater than endorsed prevalence (points above the $y=x$ line) provides more compelling evidence that generics do result in *evidence exaggeration*, even controlling for the environmental statistics of use.
 
-```{r aepScatter, fig.width = 10, fig.asp = 0.5, fig.cap="Here is a caption."}
+```{r aepScatter, fig.width = 10, fig.asp = 0.5, fig.cap="Here is a caption.", cache = F}
 fig.aep_need.modelscatter <- df.end.1.aep_need %>%
   ggplot(., aes( y = aep_mean, ymin = aep_lower, ymax = aep_upper,
                  x = MAP, xmin = cred_lower, xmax = cred_upper))+
@@ -1165,7 +1164,25 @@ df.end.1.aep.aip %>%
 
 # Discussion
 
-- discuss reliability of the prevalence data, and need to oversamples
+In this chapter, we examined the relationship between the context-sensitivity of generic endorsements in relationship to that of generic interpretation. 
+This relationship is broadly interesting because much of our conceptual understanding of the world is transmitted through generic statements. 
+Generics provide interesting flexiblity, however, as they can be endorsed or asserted even when the property prevalence is very low (see Chapter 3 for a detailed investigation). 
+Generics also have context-sensitive interpretations (see Chapter 2). 
+If, however, generics are endorsed overall at lower prevalence levels than they are interpreted, this would lead to an exaggeration of evidence. 
+
+Previously, @Cimpian2010 found that there was an asymmetry such that generics are interpreted to apply more strongly than their corresponding endorsement patterns would suggest.
+The method used in that study, we show here, was systematically biased to reduce the variance in the endorsement measure, thus making the asymmetry entirely driven by differential interpretations.
+We propose an alterantive method, based on that of *need probabilities*, which take into account the distribution of situations in which speakers would have to refer to kinds with various levels of property prevalence. 
+We found that this measure of average endorsed prevalence, based on a proxy for environmental statistics, exhibits much more variability in items that we know to have high variability in implied prevalence. 
+Using our method, we find many items do show an asymmetry, but one that is driven by both the implied prevalence and the endorsement patterns.
+
+Our computational model provides only a modest fit to the average endorsement pattern, in comparison in particular to an alternative model that endorses generic statements in a property-invariant way (assigining the same endorsement patterns to all properties). 
+The aim of the computational model, however, is to predict the endorsement data at level of a particular property and prevalence level (i.e., predict the proportion of participants who endorse the statement "Lorches have brown fur", when 10%, 30%, etc. have brown fur), not predict the average endorsement responses. 
+Further, the data at the level of individual properties and prevalences is not itself very reliable. 
+Using the Spearman prediction formula, the highest expected correlation one might expect to get is around 0.5, but this estimate also has very high variance (ranging form 0.08 - 0.74). 
+Thus, aiming to fit a model to these highly noisy data is unlikely to produce reliable predictions. 
+It is unnecessary to have equal numbers of participants rate all prevalence and property combinations, however, as the need probability distribution downweights certain conditions. 
+It might be desirable, instead, to oversample the higher probability property--prevalence combinations (e.g., 10% have malaria, 90% have brown fur) rather than uniformly distribute participants to property--prevalence conditions.
 
 # References
 
