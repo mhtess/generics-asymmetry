@@ -112,9 +112,9 @@ At the same time, when participants are confronted with evaluating the same stat
 
 The asymmetry is worrisome from a societal perspective.
 Generics are a primary vehicle for conveying stereotypes [@GelmanEtAl2004]. 
-The fact that listeners infer higher prevalence than speakers had in mind would explain why such stereotypes get propogated, even when the actual prevalence may be low. 
+The fact that listeners infer higher prevalence than speakers had in mind would explain why such stereotypes get propagated, even when the actual prevalence may be low. 
 
-The asymmetry is puzzling from a theoretical persepective as well.
+The asymmetry is puzzling from a theoretical perspective as well.
 We know from Chapters 2 & 3 that both endorsements and interpretations display sensitivity to the property in precise quantitative ways. 
 But an asymmetry would indicate that the context-sensitivity of endorsements is different from that of interpretations.
 
@@ -210,8 +210,8 @@ By taking the mean of the prevalences at which a participant endorsed the generi
 
 <!-- Because of the uniform prior, computing $P_{endorsed}(p \mid u)$ amounts to take the proportion of participants who endorse the generic at each prevalence level and normalizing those proportions to create a probability distribution.  -->
 For example, let's say participants rate the item "Lorches are afraid of loud noises" as true at the five prevalence levels (10, 30, 50, 70, 90%) with proportions $[0.3, 0.3, 0.8, 0.9, 0.9]$, respectively (e.g., 30% of participants endorse the statement when 10% or 30% of lorches live in trees, 90% of participants endorse the statement when 70% or 90% live in trees, etc.).
-These porportions are treated as an *unnormalized* likelihood distribution $\hat{P}_{endorsed}(u \mid r)$, multiplied by a uniform prior $P(r) = [1, 1, 1, 1, 1]$ to arrive at an unnormalized posterior of interest: $\hat{P}_{endorsed}(r \mid u)$. 
-With a uniform prior on $P(r)$, the posterior $\hat{P}_{endorsed}(r \mid u)$ is the same as the likeihood $\hat{P}_{endorsed}(u \mid r)$ (up to normalization).
+These proportions are treated as an *unnormalized* likelihood distribution $\hat{P}_{endorsed}(u \mid r)$, multiplied by a uniform prior $P(r) = [1, 1, 1, 1, 1]$ to arrive at an unnormalized posterior of interest: $\hat{P}_{endorsed}(r \mid u)$. 
+With a uniform prior on $P(r)$, the posterior $\hat{P}_{endorsed}(r \mid u)$ is the same as the likelihood $\hat{P}_{endorsed}(u \mid r)$ (up to normalization).
 We normalize the posterior by dividing each by the sum of all endorsement proportions (e.g., $\frac{0.3}{0.3 + 0.3 + 0.8 + 0.9 + 0.9} = 0.09$, $\frac{0.9}{0.3 + 0.3 + 0.8 + 0.9 + 0.9} = 0.28$), yielding the following distribution: [0.09, 0.09, 0.25, 0.28, 0.28].
 To get the average endorsed prevalence, we then take the expectation (i.e., the mean) of this distribution with respect to the prevalence level associated with each probability: *average endorsed prevalence* $= 0.09 \times 10\% + 0.09 \times 30\% + 0.25 \times 50\% + 0.28 \times 70\% + 0.28 \times 90\% \approx 60\%$.
 The *average implied prevalence* is the mean of participants responses to the question: "How many lorches are afraid of loud noises?" after learning that "Lorches are afraid of loud noises" ($\sim 80\%$, from Ch. 2 Expt. 2). 
@@ -266,7 +266,7 @@ post_probs <- schem.endorse * schem.need / sum((schem.endorse* schem.need))
 We can analyze the expected behavior of the different ways of computing *average endorsed prevalence* using our computational model.
 As a proxy for the need probability distribution, we use the listener's prevalence prior $P(r)$. 
 This then assumes that the probability of various kinds having a property at some prevalence is a matter of what participants believe to be the case.
-This will of course have problems for addressing questions of societal concern (e.g., propogation of stereotypes), but it is more realisitic than assuming a uniform distribution. 
+This will of course have problems for addressing questions of societal concern (e.g., propagation of stereotypes), but it is more realistic than assuming a uniform distribution. 
 
 From Chapters 2 and 3, we know that the following are good models for $P_{implied}(r \mid u)$ and $P_{endorsed}(u \mid r)$:
 
@@ -566,7 +566,7 @@ The relevant prevalence priors have already been measured in Chapter 2 (Expt. 1A
 
 We recruited 40 participants over MTurk.
 We chose a sample size at least twice as large as the original study by @Cimpian2010 (original $n = 20$), and to match that of Ch. 2 Expt. 1B. 
-All participants were self-reported native English speakers and none completed the analagous implied prevalence task (Ch. 2 Expt. 1B).
+All participants were self-reported native English speakers and none completed the analogous implied prevalence task (Ch. 2 Expt. 1B).
 The experiment took about 5 minutes and participants were compensated \$0.60.
 
 ### Procedure and materials
@@ -583,7 +583,7 @@ Each prevalence level appeared once for each property type (5 prevalence levels 
 
 
 
-```{r figCbgResults, fig.width=11, fig.asp = 0.75, fig.cap="Proportion of endorsements for novel generic sentences in Expt. 1 (Replication of @Cimpian2010 Expt. 1)."}
+```{r figCbgResults, fig.width=11, fig.asp = 0.75, fig.cap="Replication of @Cimpian2010 Expt. 1. A: Endorsements for novel generic sentences in Expt. 1. B: Prevalence (need) priors from Ch. 2, Expt. 1. C: The asymmetry between endorsed prevalence and implied prevalence computed using Cimpian's method (uniform priors). D: Aymmetries computed using need priors (shown in C)."}
 
 load("../../generic-interpretation/paper/cached_results/cimpian-prevPrior-interpretations.Rdata")
 # m.rs.priors.reconstructed.subset,
@@ -738,7 +738,7 @@ rs.brm.endorse.prev.type.summary <- summary(rs.brm.endorse.prev.type)
 
 
 Figure\ \@ref(fig:figCbgResults)A show the proportion of endorsements at each level of prevalence for the four different kinds of properties.
-To estimate any effects of property type, we ran a Bayesian bernoulli mixed-effects regression model with fixed effects of prevalence (centered and scaled), property type and their interaction and random effects of intercept and property type by-participants and intercept by-item.
+To estimate any effects of property type, we ran a Bayesian Bernoulli mixed-effects regression model with fixed effects of prevalence (centered and scaled), property type and their interaction and random effects of intercept and property type by-participants and intercept by-item.
 There is a clear effect of prevalence levels $\beta_{prevalence} =$ `r format_regression_effects(rs.brm.endorse.prev.type.summary, "stim_prevalence")`, and some evidence that generics with body part properties $\beta_{body} =$ `r format_regression_effects(rs.brm.endorse.prev.type.summary, "stim_typepart")` and those described with gradable adjectives $\beta_{gradable} =$ `r format_regression_effects(rs.brm.endorse.prev.type.summary, "stim_typevague")` are endorsed more than the accidental property bare plurals. 
 In addition, there is evidence for an interaction between prevalence and property type for the body $\beta_{body \times prevalence} =$ `r format_regression_effects(rs.brm.endorse.prev.type.summary, "stim_prevalence:stim_typepart")` and gradable properties $\beta_{gradable \times prevalence} =$ `r format_regression_effects(rs.brm.endorse.prev.type.summary, "stim_prevalence:stim_typevague")` in comparison to the accidental properties: The slope appears flatter for the accidental bare plurals, owing to the fact they are endorsed less at high prevalence levels.
 These same effects were not credibly different from zero for the color properties ($\beta_{color} =$ `r format_regression_effects(rs.brm.endorse.prev.type.summary, "stim_typecolor")`; $\beta_{color \times prevalence} =$ `r format_regression_effects(rs.brm.endorse.prev.type.summary, "stim_prevalence:stim_typecolor")`).
@@ -749,14 +749,14 @@ We see that the *averaged endorsed prevalence* measure does vary by property-typ
 As we saw in our simulations, however, even were the endorsements to vary more dramatically, the resulting influence on this measure of average endorsed prevalence would be relatively minimal, because of the averaging step in its calculation. 
 Thus, the asymmetry reported by @Cimpian2010 is driven by the implied prevalence varying between property (a phenomenon we explored in depth in Ch. 2) while the average endorsed prevalence does not change.
 
-For *average endorsed prevalence* to roughly correspond to the environmental statistics under which we would expect generics to be used about kinds with various levels of property prevalence, we should not only take into account the endorsement patterns at face value but weight them by the prior probability of kinds being present in the enviroment to be referred to.
+For *average endorsed prevalence* to roughly correspond to the environmental statistics under which we would expect generics to be used about kinds with various levels of property prevalence, we should not only take into account the endorsement patterns at face value but weight them by the prior probability of kinds being present in the environment to be referred to.
 Figure\ \@ref(fig:figCbgResults)D shows the average endorsed prevalence, computed using the need distributions.
 This average endorsement measure takes into account that different properties occur with different frequencies in kinds, and displays context-sensitivity that is comparable to that of the implied prevalence.
 Notably, however, we still see that the prevalence implied by generics of the body part properties, and possibly the other non-accidental properties, still reach higher levels than the average endorsed prevalence. 
 This would be potentially much stronger evidence than @Cimpian2010 that certain generics are interpreted more strongly than the endorsement patterns would suggest.
 
 To examine in more detail the relationship by the need-probability derived average endorsed prevalence and implied prevalence, we compare the two measures on a by-item basis assuming both the uniform prior of @Cimpian2010 and our prevalence need prior. 
-Figure\ \@ref(fig:cbg_aid_aed_byItem) shows the results. 
+Figure\ \@ref(fig:cbgAidAedByItem) shows the results. 
 It is clear that the uniform prior assumption substantially decreases the dynamic range of the endorsement data. Across the forty items, the average implied prevalence ranges from 40% to 95% (55% range).
 The endorsed prevalence assuming a uniform prior only ranges from 53% to 75% (22% range), whereas assuming our need prior ranges from 46% to 84% (38% range).
 The uniform endorsed prevalence shows almost no correlation with the implied prevalence data ($r(40) = 0.13$), whereas the need prior derived endorsed prevalence shows a very high correlation $r(40) = 0.81$.
@@ -1025,7 +1025,7 @@ ggplot(md.end1.atc.summary,
 
 We next examine the endorsement data by computing average endorsed prevalence assuming a need probability distribution that follows the environmental statistics of the property, operationalized using the prevalence prior elicited for these same items in Ch. 2 (Expt. 2a). 
 Rather than take the linear average of the prevalence levels at which participants endorse the generic sentence, we weight these endorsements by the probability that the prevalence level would occur for that property.
-For example, the property *is afraid of loud noises* has a 0.43 probability of occuring around 90% prevalence within a kind (averaging between 80-100% prevalence) whereas the property *carries malaria* only has a 0.09 probability of occuring with that same prevalence; the endorsement ratings are thus weighted to reflect these environmental statistics, providing a more accurate measure of the average prevalence at which we would expect speakers to use the generics.
+For example, the property *is afraid of loud noises* has a 0.43 probability of occurring around 90% prevalence within a kind (averaging between 80-100% prevalence) whereas the property *carries malaria* only has a 0.09 probability of occurring with that same prevalence; the endorsement ratings are thus weighted to reflect these environmental statistics, providing a more accurate measure of the average prevalence at which we would expect speakers to use the generics.
 Using this environmental need probability, the average endorsed prevalence shows a remarkably improved reliability ($\rho =$ `r format(df.end.aep_need.splithalf.r[[1, "mean_r"]], digits = 2)`[`r format(df.end.aep_need.splithalf.r[[1, "lower_r"]], digits = 2)`, `r format(df.end.aep_need.splithalf.r[[1, "upper_r"]], digits = 2)`]).
 
 
@@ -1075,11 +1075,16 @@ To better understand the contribution of the need probabilities to the resulting
 These control models also show a strong correlation to the data (prior only: $r(`r df.end.1.aep_need.prior.stats[[1,"n"]]`) = `r round(df.end.1.aep_need.prior.stats[[1,"r"]], 3)`$, MSE $=`r df.end.1.aep_need.prior.stats[[1,"mse"]]`$; Figure\ \@ref(fig:aepScatter)B, and context-invariant endorsement model: $r(`r df.end.1.aep_need.invariant.stats[[1,"n"]]`) = `r round(df.end.1.aep_need.invariant.stats[[1,"r"]], 3)`$, MSE $=`r df.end.1.aep_need.invariant.stats[[1,"mse"]]`$; Figure\ \@ref(fig:aepScatter)C), though the prior only model consistently *underpredicts* the average endorsed prevalence while the context-invariant model consistently *overpredicts* the average endorsed prevalence.
 
 Finally, we look at the asymmetry between endorsed prevalence and implied prevalence (taken from Ch. 2, Expt. 2a), both when average endorsed prevalence is computed assuming uniform need probabilities [as done by @Cimpian2010] and assuming environmental statistics for the need probabilities. 
-As indicated by the earlier analyses, the uniform need probabilities do not provide any quantitative variation to distingiush among endorsement patterns for different generics, so the resulting asymmetries are entirely driven by differences in the average implied prevalence (Figure\ \@ref(fig:aepAipScatter)A).
-When the need probabilities reflect the statistics of the environment, however, asymmetries result both by differnces in endorsements and in implied prevalence (Figure\ \@ref(fig:aepAipScatter)B).
-The result, then, the majority of properties still show an asymmetry wherein implied prevalence is greater than endorsed prevalence (points above the $y=x$ line) provides more compelling evidence that generics do result in *evidence exaggeration*, even controlling for the environmental statistics of use.
+As indicated by the earlier analyses, the uniform need probabilities do not provide any quantitative variation to distinguish among endorsement patterns for different generics, so the resulting asymmetries are entirely driven by differences in the average implied prevalence (Figure\ \@ref(fig:aepAipScatter)A left).
+When the need probabilities reflect the statistics of the environment, however, asymmetries result both by differences in endorsements and in implied prevalence (Figure\ \@ref(fig:aepAipScatter)A right).
+The result, then, the majority of properties still show an asymmetry wherein implied prevalence is greater than endorsed prevalence (points above the $y=x$ line; Figure\ \@ref(fig:aepAipScatter)G) provides more compelling evidence that generics do result in *evidence exaggeration*, even controlling for the environmental statistics of use.
 
-```{r aepScatter, fig.width = 10, fig.asp = 0.5, fig.cap="Here is a caption.", cache = F}
+Due to unreliability of the endorsement data and the exploratory nature of this approach, it is hard to draw generalizations from the properties that do or do not exhibit an asymmetry.
+One observation, however, is that many of the properties that do not exhibit *evidence exaggeration* are properties of animals interacting with the human world (e.g., *get addicted to nicotine*, *drink soda*, *perform in the circus*).
+These may be cases where the property can be attributed to an extrinsic cause (in this case, human beings actively enabling the property). 
+Further investigation should investigate this possibility.
+
+```{r aepScatter, fig.width = 10, fig.asp = 0.5, fig.cap="Empirical average endorsed prevalence calculated using a need probability distribution based on the environmental statistics (prevalence prior) vs. model predictions. A: Generic endorsement model. B: A model that always endorses the generic the same regardless of the prevalence level or property. C: A model that endorses the generic as a function of a prevalence but without respect to property.", cache = F}
 fig.aep_need.modelscatter <- df.end.1.aep_need %>%
   ggplot(., aes( y = aep_mean, ymin = aep_lower, ymax = aep_upper,
                  x = MAP, xmin = cred_lower, xmax = cred_upper))+
@@ -1140,8 +1145,8 @@ cowplot::plot_grid(
 
 
 
-```{r aepAipScatter, fig.width = 7, fig.asp = 0.5, fig.cap="Here is a caption.", cache=F}
-df.end.1.aep.aip %>%
+```{r aepAipScatter, fig.width = 13, fig.asp = 0.35, fig.cap="Asymmetry between implied prevalence and endorsed prevalence. A: Implied prevalence vs. average endorsed prevalence calculated using a uniform need probability (Cimpian et al., 2010 method) and a need probability distribution based on the environmental statistics (prevalence prior). B: Environmental need probability calculated asymmetries. ", cache=F}
+fig.aep.aip.scatters <- df.end.1.aep.aip %>%
   mutate(src = factor(src, levels = c("aep_unif", "aep"),
                       labels = c("Uniform need probability (Cimpian et al., 2010)",
                                  "Environmental need probability"))) %>%
@@ -1158,7 +1163,33 @@ df.end.1.aep.aip %>%
   xlab("Average endorsed prevalence")+
   ylab("Average implied prevalence")+
   xlim(0.25, 1)+
-  ylim(0.25, 1)
+  ylim(0.25, 1)+
+  coord_fixed()
+
+df.end.1.aep.aip.asym <- df.end.1.aep.aip %>% 
+  filter(src == "aep") %>% 
+  mutate(asym = 100*mean - aep_mean)
+
+df.end.1.aep_unif.aip.asym <- df.end.1.aep.aip %>% 
+  filter(src == "aep_unif") %>% 
+  mutate(asym = 100*mean - aep_mean)
+
+fig.asym.property <- df.end.1.aep.aip.asym %>%
+  ungroup() %>%
+  mutate(property = factor(property, levels = property[order(-asym)])) %>%
+  ggplot(., aes (x = property, y = asym))+
+  geom_col(position = position_dodge())+
+  coord_flip()+
+  xlab("")+
+  ylab("Asymmetry\n(Implied - Endorsed prevalence)")
+
+cowplot::plot_grid(
+  fig.aep.aip.scatters,
+  fig.asym.property,
+  nrow = 1,
+  labels = c("A", "B"),
+  rel_widths = c(1.2, 1)
+)
 ```
 
 
@@ -1166,17 +1197,17 @@ df.end.1.aep.aip %>%
 
 In this chapter, we examined the relationship between the context-sensitivity of generic endorsements in relationship to that of generic interpretation. 
 This relationship is broadly interesting because much of our conceptual understanding of the world is transmitted through generic statements. 
-Generics provide interesting flexiblity, however, as they can be endorsed or asserted even when the property prevalence is very low (see Chapter 3 for a detailed investigation). 
+Generics provide interesting flexibility, however, as they can be endorsed or asserted even when the property prevalence is very low (see Chapter 3 for a detailed investigation). 
 Generics also have context-sensitive interpretations (see Chapter 2). 
 If, however, generics are endorsed overall at lower prevalence levels than they are interpreted, this would lead to an exaggeration of evidence. 
 
 Previously, @Cimpian2010 found that there was an asymmetry such that generics are interpreted to apply more strongly than their corresponding endorsement patterns would suggest.
 The method used in that study, we show here, was systematically biased to reduce the variance in the endorsement measure, thus making the asymmetry entirely driven by differential interpretations.
-We propose an alterantive method, based on that of *need probabilities*, which take into account the distribution of situations in which speakers would have to refer to kinds with various levels of property prevalence. 
+We propose an alternative method, based on that of *need probabilities*, which take into account the distribution of situations in which speakers would have to refer to kinds with various levels of property prevalence. 
 We found that this measure of average endorsed prevalence, based on a proxy for environmental statistics, exhibits much more variability in items that we know to have high variability in implied prevalence. 
 Using our method, we find many items do show an asymmetry, but one that is driven by both the implied prevalence and the endorsement patterns.
 
-Our computational model provides only a modest fit to the average endorsement pattern, in comparison in particular to an alternative model that endorses generic statements in a property-invariant way (assigining the same endorsement patterns to all properties). 
+Our computational model provides only a modest fit to the average endorsement pattern, in comparison in particular to an alternative model that endorses generic statements in a property-invariant way (assigning the same endorsement patterns to all properties). 
 The aim of the computational model, however, is to predict the endorsement data at level of a particular property and prevalence level (i.e., predict the proportion of participants who endorse the statement "Lorches have brown fur", when 10%, 30%, etc. have brown fur), not predict the average endorsement responses. 
 Further, the data at the level of individual properties and prevalences is not itself very reliable. 
 Using the Spearman prediction formula, the highest expected correlation one might expect to get is around 0.5, but this estimate also has very high variance (ranging form 0.08 - 0.74). 
